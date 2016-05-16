@@ -1,7 +1,4 @@
-# About
+# s-match-uby
 
-S-Match WordNet contains implementations of linguistic oracles based on Princeton WordNet.
+Extensions of S-Match to allow using linguistic resources in LMF format through UBY framework.
 
-# Getting started
-
-You can get started at [S-Match Core index page](https://github.com/s-match/s-match-core/).
