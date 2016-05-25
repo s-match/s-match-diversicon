@@ -1,5 +1,7 @@
 
 
+/conf/*
+!/conf/README.txt
 
 ##### MAVEN
 

@@ -1,0 +1,56 @@
+<?xml version="1.0"?><!DOCTYPE hibernate-mapping PUBLIC
+ "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping >  
+<class name="de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation" 
+	   table="SynsetRelation" 
+	   node="SynsetRelation" 
+	   dynamic-insert="true"
+	   discriminator-value="SynsetRelation">
+   
+    <id column="synsetRelationId" type="long">
+		   <!-- smuby: using "sequence" instead of "increment" to avoid 
+           				org.hibernate.QueryException: Invalid identifier generator encountered for implicit id handling as part of bulk insertions [INSERT INTO SynsetRelation (source, target, relType, relName, depth, provenance)   SELECT SR.target, SR.source,  SR.relType, ':relName',  1, 'it.unitn.disi.smatch.oracles.uby'  FROM de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation SR]
+                <generator class="increment"/> -->                       
+           <generator class="sequence"/> 
+            
+    </id>
+    
+    <!-- smuby start -->
+     <discriminator column="DTYPE" type="string"/>           
+    <!-- smuby end -->
+    
+   <property name="relType" column="relType" node="@relType">    
+    	<type name="de.tudarmstadt.ukp.lmf.hibernate.EnumUserType">
+         	<param name="enumClassName">de.tudarmstadt.ukp.lmf.model.enums.ERelTypeSemantics</param>         	
+      	</type>
+  	</property>     
+  	
+  	<property name="relName" column="relName" node="@relName" type="string"/>	       	  		
+                   	  	
+	<many-to-one name="target" class="de.tudarmstadt.ukp.lmf.model.semantics.Synset" column="target"
+		 node="@target" foreign-key="none" index="synsetrelation_target_IDX"/>
+
+	<list name="frequencies" node=".">
+         <key column="synsetRelationId" />
+         <index column="idx"/>
+         <one-to-many class="de.tudarmstadt.ukp.lmf.model.meta.Frequency" node="Frequency"/>
+    </list>    
+		 
+	<!-- Not in the model, mapped for convenience -->	
+	<many-to-one name="source" class="de.tudarmstadt.ukp.lmf.model.semantics.Synset" column="synsetId"
+			insert="false" update="false"/>
+	
+	<!-- Smuby: added to have our customized SmySynsetRelation  mapped to same SynsetRelation table -->				
+	<subclass name="it.unitn.disi.smatch.oracles.uby.SmuSynsetRelation" 
+       		  extends="de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation" 
+       		  discriminator-value="SmuSynsetRelation">
+   		<property name="depth"  node="@depth" type="int" >
+   		 	<column name="depth" not-null="true" default="1" />
+   		</property> 	 
+   		<property name="provenance" column="provenance" node="@provenance" type="string"/>
+	</subclass>	
+			
+</class>
+
+</hibernate-mapping>

@@ -27,16 +27,16 @@ import de.tudarmstadt.ukp.lmf.model.semantics.SynsetRelation;
  * WordNet-based sense implementation.
  *
  */
-public class UbySense implements ISense , Serializable {
+public class SmuSense implements ISense , Serializable {
 
-	private static final Logger log = LoggerFactory.getLogger(UbySense.class);
+	private static final Logger log = LoggerFactory.getLogger(SmuSense.class);
 	
 	private Synset synset;
 	private Uby uby;
 
-	private UbyLinguisticOracle oracle;
+	private SmuLinguisticOracle oracle;
 	
-	public UbySense(Synset synset, UbyLinguisticOracle oracle) {		
+	public SmuSense(Synset synset, SmuLinguisticOracle oracle) {		
 		Objects.requireNonNull(synset);
 		Objects.requireNonNull(oracle);
 		this.synset = synset;		
@@ -149,7 +149,7 @@ public class UbySense implements ISense , Serializable {
 					Objects.requireNonNull(synsetRelation);
 					
 					if (relNames.contains(synsetRelation.getRelName())){
-						UbySense senseToAdd = new UbySense(synsetRelation.getTarget(), oracle);
+						SmuSense senseToAdd = new SmuSense(synsetRelation.getTarget(), oracle);
 						ret.add(senseToAdd);
 					}
 					
