@@ -6,32 +6,32 @@ package it.unitn.disi.smatch.oracles.uby;
  * @author David Leoni <david.leoni@unitn.it>
  * @since 0.1
  */
-public class SmuNotFoundException extends SmuException {
+public class SmubyNotFoundException extends SmubyException {
     
     private static final long serialVersionUID = 1L;
 
-    private SmuNotFoundException(){
+    private SmubyNotFoundException(){
         super();
     }
     
     /**
      * Creates the NotFoundException using the provided throwable
      */
-    public SmuNotFoundException(Throwable tr) {
+    public SmubyNotFoundException(Throwable tr) {
         super(tr);
     }
 
     /**
      * Creates the NotFoundException using the provided message and throwable
      */
-    public SmuNotFoundException(String msg, Throwable tr) {
+    public SmubyNotFoundException(String msg, Throwable tr) {
         super(msg, tr);
     }
 
     /**
      * Creates the NotFoundException using the provided message
      */
-    public SmuNotFoundException(String msg) {
+    public SmubyNotFoundException(String msg) {
         super(msg);
     }
 }

@@ -28,6 +28,7 @@
 
 	<properties>
 		<dkpro.uby.version>0.7.0</dkpro.uby.version>
+		<diversicon.version>0.1.0-SNAPSHOT</diversicon.version>
 	</properties>
 
 	<repositories>
@@ -80,7 +81,7 @@
 			<scope>compile</scope>
 
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
@@ -89,12 +90,19 @@
 		</dependency>
 
 
-		<!--  todo shade it  -->
+		<!-- todo shade it -->
 		<dependency>
-		    <groupId>uk.com.robust-it</groupId>
-		    <artifactId>cloning</artifactId>
-		    <version>1.9.2</version>
+			<groupId>uk.com.robust-it</groupId>
+			<artifactId>cloning</artifactId>
+			<version>1.9.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>it.unitn.disi</groupId>
+			<artifactId>diversicon</artifactId>
+			<version>${diversicon.version}</version>
+		</dependency>
+
 
 		<dependency>
 			<scope>test</scope>
@@ -102,6 +110,15 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 		</dependency>
+
+		<dependency>
+			<groupId>it.unitn.disi</groupId>
+			<artifactId>diversicon</artifactId>
+			<type>test-jar</type>
+			<version>${diversicon.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
