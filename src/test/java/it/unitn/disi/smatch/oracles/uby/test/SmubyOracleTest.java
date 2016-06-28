@@ -37,7 +37,7 @@ public class SmubyOracleTest {
 
     @Before
     public void beforeMethod() {
-        dbConfig = DivTester.createDbConfig();
+        dbConfig = DivTester.createNewDbConfig();
     }
 
     @After
@@ -67,7 +67,7 @@ public class SmubyOracleTest {
                                             .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource(lexicalResource, true);
         
         DivTester.checkDb(lexicalResource, div);
 
@@ -110,7 +110,7 @@ public class SmubyOracleTest {
                                             .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource, true);
         
         DivTester.checkDb(lexicalResource, div);
 
@@ -149,7 +149,7 @@ public class SmubyOracleTest {
                                             .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource,  true);
         
         DivTester.checkDb(lexicalResource, div);
 
@@ -184,7 +184,7 @@ public class SmubyOracleTest {
                 .build();
         
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource, true);
         
         
         assertEquals(newArrayList(), oracle.getMultiwords("a"));
@@ -211,7 +211,7 @@ public class SmubyOracleTest {
                 .build();
         
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource, true);
         
         
         assertEquals(newArrayList("a"), oracle.getBaseForms("a"));
@@ -243,7 +243,7 @@ public class SmubyOracleTest {
                 .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource, true);
         
         SmubySense sense1 = (SmubySense) oracle.getSenses("a").get(0);
         SmubySense sense2 = (SmubySense) oracle.getSenses("b").get(0);
@@ -287,7 +287,7 @@ public class SmubyOracleTest {
                 .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource( lexicalResource, "lexical resource 1", false);
+        div.importResource( lexicalResource, true);
         
         SmubySense sense1 = (SmubySense) oracle.createSense("synset 1");
         

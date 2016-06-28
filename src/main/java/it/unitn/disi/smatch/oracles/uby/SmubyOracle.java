@@ -70,11 +70,10 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
 
         Objects.requireNonNull(dbConfig);
 
-        diversicon = Diversicon.create(dbConfig);
+        diversicon = Diversicon.connectToDb(dbConfig);
 
         if (lmfXmlPath != null) {
-            diversicon.importFiles(lmfXmlPath, "UbyTestTodo"); // todo name
-                                                               // meaning ?
+            diversicon.importXml(lmfXmlPath); 
         }
 
     }

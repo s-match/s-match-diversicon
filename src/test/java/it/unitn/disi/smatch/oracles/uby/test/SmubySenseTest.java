@@ -32,7 +32,7 @@ public class SmubySenseTest {
 
     @Before
     public void beforeMethod() {
-        dbConfig = DivTester.createDbConfig();
+        dbConfig = DivTester.createNewDbConfig();
     }
 
     @After
@@ -60,7 +60,7 @@ public class SmubySenseTest {
                                                     .build();
 
         Diversicon div = oracle.getDiversicon();
-        div.importResource(lexicalResource, "lexical resource 1", true);
+        div.importResource(lexicalResource, false);
 
         SmubySense sense1 = (SmubySense) oracle.getSenses("a")
                                                .get(0);
@@ -107,7 +107,7 @@ public class SmubySenseTest {
                                                     .build();
 
         Diversicon div = oracle.getDiversicon();
-        div.importResource(lexicalResource, "lexical resource 1", false);
+        div.importResource(lexicalResource, true);
         
         DivTester.checkDb(lexicalResource, div);
         

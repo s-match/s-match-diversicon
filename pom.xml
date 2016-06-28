@@ -29,6 +29,7 @@
 	<properties>
 		<dkpro.uby.version>0.7.0</dkpro.uby.version>
 		<diversicon.version>0.1.0-SNAPSHOT</diversicon.version>
+		<diversicon.slf4j.version>1.7.21</diversicon.slf4j.version>
 	</properties>
 
 	<repositories>
@@ -60,27 +61,9 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
+			<version>${diversicon.slf4j.version}</version> <!-- Need it for this : http://www.slf4j.org/codes.html#log4j_version -->
 		</dependency>
 
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.uby</groupId>
-			<artifactId>de.tudarmstadt.ukp.uby.lmf.api-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>de.tudarmstadt.ukp.uby</groupId>
-			<artifactId>de.tudarmstadt.ukp.uby.persistence.transform-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>1.3.160</version>
-			<type>jar</type>
-			<scope>compile</scope>
-
-		</dependency>
 
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
@@ -90,19 +73,13 @@
 		</dependency>
 
 
-		<!-- todo shade it -->
-		<dependency>
-			<groupId>uk.com.robust-it</groupId>
-			<artifactId>cloning</artifactId>
-			<version>1.9.2</version>
-		</dependency>
-
 		<dependency>
 			<groupId>it.unitn.disi</groupId>
 			<artifactId>diversicon</artifactId>
-			<version>${diversicon.version}</version>
+			<version>${diversicon.version}</version>			
 		</dependency>
 
+		<!-- ************ TESTING ***************** -->
 
 		<dependency>
 			<scope>test</scope>
@@ -117,7 +94,28 @@
 			<type>test-jar</type>
 			<version>${diversicon.version}</version>
 			<scope>test</scope>
+			<exclusions> <!-- s-match stuff uses log4j -->
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+
 		</dependency>
+
+		<dependency>
+			<scope>runtime</scope>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>${diversicon.slf4j.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+
 
 	</dependencies>
 
