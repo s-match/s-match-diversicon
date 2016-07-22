@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby.test;
+package it.unitn.disi.smatch.oracles.diversicon.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,8 +10,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static it.unitn.disi.smatch.oracles.uby.test.SmubyUtilsTest.*;
-import static it.unitn.disi.smatch.oracles.uby.SmubyUtils.*;
+import static it.unitn.disi.smatch.oracles.diversicon.SmdivUtils.*;
+import static it.unitn.disi.smatch.oracles.diversicon.test.SmdivUtilsTest.*;
+
 import de.tudarmstadt.ukp.lmf.model.core.LexicalResource;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
@@ -20,13 +21,13 @@ import it.unitn.disi.diversicon.Diversicons;
 import it.unitn.disi.diversicon.test.LmfBuilder;
 import it.unitn.disi.diversicon.test.DivTester;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
-import it.unitn.disi.smatch.oracles.uby.SmubyOracle;
-import it.unitn.disi.smatch.oracles.uby.SmubySense;
-import it.unitn.disi.smatch.oracles.uby.SmubyUtils;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivOracle;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivSense;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivUtils;
 
-public class SmubySenseTest {
+public class SmdivSenseTest {
 
-    private static final Logger log = LoggerFactory.getLogger(SmubySenseTest.class);
+    private static final Logger log = LoggerFactory.getLogger(SmdivSenseTest.class);
 
     private DBConfig dbConfig;
 
@@ -44,7 +45,7 @@ public class SmubySenseTest {
     public void testGetChildrenParents() throws LinguisticOracleException {
         Diversicons.dropCreateTables(dbConfig);
 
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
 
         LexicalResource lexicalResource = LmfBuilder.lmf()
                                                     .lexicon()
@@ -62,11 +63,11 @@ public class SmubySenseTest {
         Diversicon div = oracle.getDiversicon();
         div.importResource(lexicalResource, false);
 
-        SmubySense sense1 = (SmubySense) oracle.getSenses("a")
+        SmdivSense sense1 = (SmdivSense) oracle.getSenses("a")
                                                .get(0);
-        SmubySense sense2 = (SmubySense) oracle.getSenses("b")
+        SmdivSense sense2 = (SmdivSense) oracle.getSenses("b")
                                                .get(0);
-        SmubySense sense3 = (SmubySense) oracle.getSenses("c")
+        SmdivSense sense3 = (SmdivSense) oracle.getSenses("c")
                                                .get(0);
 
         assertEquals(
@@ -74,7 +75,7 @@ public class SmubySenseTest {
                 new HashSet(getIds(sense1.getChildren())));
         assertEquals(
                 newArrayList("synset 2"),
-                SmubyUtils.getIds(sense1.getChildren(1)));
+                SmdivUtils.getIds(sense1.getChildren(1)));
 
         assertEquals(
                 newHashSet("synset 1", "synset 2"),
@@ -93,7 +94,7 @@ public class SmubySenseTest {
     public void testGetGlossLemmas() throws LinguisticOracleException {
         Diversicons.dropCreateTables(dbConfig);
 
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
 
         LexicalResource lexicalResource = LmfBuilder.lmf()
                                                     .lexicon()
@@ -112,9 +113,9 @@ public class SmubySenseTest {
         DivTester.checkDb(lexicalResource, div);
         
         
-        SmubySense sense1 = (SmubySense) oracle.getSenses("a")
+        SmdivSense sense1 = (SmdivSense) oracle.getSenses("a")
                                                .get(0);
-        SmubySense sense2 = (SmubySense) oracle.getSenses("b")
+        SmdivSense sense2 = (SmdivSense) oracle.getSenses("b")
                                                .get(0);
                 
         

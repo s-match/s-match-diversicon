@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby.test;
+package it.unitn.disi.smatch.oracles.diversicon.test;
 
 
 import static org.junit.Assert.assertEquals;
@@ -19,15 +19,15 @@ import org.slf4j.LoggerFactory;
 import de.tudarmstadt.ukp.lmf.hibernate.UBYH2Dialect;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
-import it.unitn.disi.smatch.oracles.uby.SmubyNotFoundException;
 import it.unitn.disi.diversicon.Diversicons;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivNotFoundException;
 
 
 
-public class SmubyUtilsTest {
+public class SmdivUtilsTest {
 
 		
-	private static final Logger log = LoggerFactory.getLogger(SmubyOracleTest.class);
+	private static final Logger log = LoggerFactory.getLogger(SmdivOracleTest.class);
 	
 	private DBConfig dbConfig;
 		

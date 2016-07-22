@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby;
+package it.unitn.disi.smatch.oracles.diversicon;
 
 
 /**
@@ -7,23 +7,23 @@ package it.unitn.disi.smatch.oracles.uby;
  * @author David Leoni <david.leoni@unitn.it>
  * @since 0.1
  */
-public class SmubyException extends RuntimeException {
+public class SmdivException extends RuntimeException {
     
     private static final long serialVersionUID = 1L;
 
-    protected SmubyException(){
+    protected SmdivException(){
         super();
     }
     
-    public SmubyException(Throwable tr) {
+    public SmdivException(Throwable tr) {
         super(tr);
     }
 
-    public SmubyException(String msg, Throwable tr) {
+    public SmdivException(String msg, Throwable tr) {
         super(msg, tr);
     }
 
-    public SmubyException(String msg) {
+    public SmdivException(String msg) {
         super(msg);
     }
 }

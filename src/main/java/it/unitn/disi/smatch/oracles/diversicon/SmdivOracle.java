@@ -1,8 +1,9 @@
-package it.unitn.disi.smatch.oracles.uby;
+package it.unitn.disi.smatch.oracles.diversicon;
 
-import it.unitn.disi.diversicon.DivException;
+import it.disi.unitn.diversicon.exceptions.DivException;
 import it.unitn.disi.diversicon.Diversicon;
 import it.unitn.disi.diversicon.Diversicons;
+import it.unitn.disi.diversicon.data.DivWn31;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,12 +11,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.tudarmstadt.ukp.lmf.hibernate.UBYH2Dialect;
 import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
+import de.tudarmstadt.ukp.lmf.model.morphology.Component;
+import de.tudarmstadt.ukp.lmf.model.morphology.ListOfComponents;
 import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
 import it.unitn.disi.smatch.data.ling.ISense;
@@ -24,7 +27,6 @@ import it.unitn.disi.smatch.oracles.ILinguisticOracle;
 import it.unitn.disi.smatch.oracles.ISenseMatcher;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.SenseMatcherException;
-
 
 /**
  * Oracle to access LMF XMLs via
@@ -35,46 +37,56 @@ import it.unitn.disi.smatch.oracles.SenseMatcherException;
  * This oracle strives to give back some info regardless of possible
  * inconsistencies or errors coming from the underlying LMF database
  * 
- * @since 0.1
+ * @since 0.1.0
  * @author David Leoni
  *
  */
-public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
+public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
-    private static final Logger log = LoggerFactory.getLogger(SmubyOracle.class);
+    private static final Logger log = LoggerFactory.getLogger(SmdivOracle.class);
 
     private Diversicon diversicon;
 
     /**
-     * Creates an empty H2 in-memory database
+     * Connects to Wordnet 3.1 file database, extracting it to
+     * {@link it.unitn.disi.diversicon.Diversicons#CACHE_PATH user home}
+     * if not already present.
+     * 
+     * @since 0.1.0
      */
-    public SmubyOracle() {
-        this((String) null);
+    public SmdivOracle() {
+        try {
+            DBConfig defaultDbConfig = Diversicons.fetchH2Db(DivWn31.ID, DivWn31.of().getVersion());
+            diversicon = Diversicon.connectToDb(defaultDbConfig);
+        } catch (Exception ex) {
+            throw new SmdivException("Error creating default wordnet db!", ex);
+        }
     }
 
     /**
-     * todo H2 in-memory database
+     * Connects to h2 file database at given path, using 
+     * {@link Diversicons#makeDefaultH2FileDbConfig(String, boolean) default
+     * connection config}  
      * 
-     * @param lmfXmlPath
-     *            a path to an lmf xml to load. If {@code null} database
-     *            will be empty.
-     *            todo throws what?
+     * @param filepath
+     *            the database path ending only with the name. Must NOT end with
+     *             '{@code .h2.db}'.  
+     *            
+     * @since 0.1.0
      */
-    public SmubyOracle(String lmfXmlPath) {
-        this(new DBConfig("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "org.h2.Driver",
-                UBYH2Dialect.class.getName(), "root", "pass", true),
-                lmfXmlPath);
+    public SmdivOracle(String filepath) {
+        try {
+            diversicon = Diversicon.connectToDb(Diversicons.makeDefaultH2FileDbConfig(filepath, true));
+
+        } catch (Exception ex) {
+            throw new SmdivException("Error creating default wordnet db!", ex);
+        }
     }
 
-    public SmubyOracle(DBConfig dbConfig, String lmfXmlPath) {
-
+    public SmdivOracle(DBConfig dbConfig) {
         Objects.requireNonNull(dbConfig);
 
         diversicon = Diversicon.connectToDb(dbConfig);
-
-        if (lmfXmlPath != null) {
-            diversicon.importXml(lmfXmlPath); 
-        }
 
     }
 
@@ -161,16 +173,17 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
      * @throws it.unitn.disi.smatch.oracles.SenseMatcherException
      *             SenseMatcherException
      */
-    // copied from wordnet oracle and removed caching. todo review to check caching is actually needed  
+    // copied from wordnet oracle and removed caching. todo review to check
+    // caching is actually needed
     private boolean getRelationFromOracle(ISense source, ISense target, char rel) throws SenseMatcherException {
 
         if (isSourceSynonymTarget(source, target)) {
             return rel == IMappingElement.EQUIVALENCE;
         } else {
-            if (isSourceOppositeToTarget(source, target)) {                
+            if (isSourceOppositeToTarget(source, target)) {
                 return rel == IMappingElement.DISJOINT;
             } else {
-                if (isSourceLessGeneralThanTarget(source, target)) {                    
+                if (isSourceLessGeneralThanTarget(source, target)) {
                     return rel == IMappingElement.LESS_GENERAL;
                 } else {
                     if (isSourceMoreGeneralThanTarget(source, target)) {
@@ -188,9 +201,9 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
 
         checkSourceTarget(source, target);
 
-        if ((source instanceof SmubySense) && (target instanceof SmubySense)) {
-            SmubySense sourceSyn = (SmubySense) source;
-            SmubySense targetSyn = (SmubySense) target;
+        if ((source instanceof SmdivSense) && (target instanceof SmdivSense)) {
+            SmdivSense sourceSyn = (SmdivSense) source;
+            SmdivSense targetSyn = (SmdivSense) target;
 
             // todo g - do we need POS? if ((POS.NOUN == sourceSyn.getPOS() &&
             // POS.NOUN == targetSyn.getPOS()) || (POS.VERB ==
@@ -250,15 +263,18 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
     @Override
     public boolean isSourceSynonymTarget(ISense source, ISense target) throws SenseMatcherException {
         checkSourceTarget(source, target);
-        
+
         if (source.equals(target)) {
             return true;
         }
-        if ((source instanceof SmubySense) && (target instanceof SmubySense)) {
+        if ((source instanceof SmdivSense) && (target instanceof SmdivSense)) {
             try {
-                return diversicon.isConnected(source.getId(), target.getId(), 1, ERelNameSemantics.SYNONYM, ERelNameSemantics.SYNONYMNEAR);
+                return diversicon.isConnected(source.getId(), target.getId(), 1, ERelNameSemantics.SYNONYM,
+                        ERelNameSemantics.SYNONYMNEAR);
             } catch (Exception e) {
-                throw new SenseMatcherException(e.getClass().getSimpleName() + ": " + e.getMessage(), e);
+                throw new SenseMatcherException(e.getClass()
+                                                 .getSimpleName()
+                        + ": " + e.getMessage(), e);
             }
         }
         return false;
@@ -274,7 +290,7 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
             return false;
         }
 
-        if ((source instanceof SmubySense) && (target instanceof SmubySense)) {
+        if ((source instanceof SmdivSense) && (target instanceof SmdivSense)) {
             try {
                 return diversicon.isConnected(source.getId(), target.getId(), 1, ERelNameSemantics.ANTONYM);
             } catch (DivException ex) {
@@ -290,7 +306,8 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
     @Override
     public boolean isEqual(String str1, String str2) throws LinguisticOracleException {
         log.warn("CALLED isEquals(str1, str2), WHICH IS NOT WELL SUPPORTED BY SmubyOracle.");
-        return diversicon.getLemmaStringsByWrittenForm(str1).equals(diversicon.getLemmaStringsByWrittenForm(str2));
+        return diversicon.getLemmaStringsByWrittenForm(str1)
+                         .equals(diversicon.getLemmaStringsByWrittenForm(str2));
     }
 
     /**
@@ -312,7 +329,7 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
             for (Synset synset : synsets) {
                 if (!foundIds.contains(synset.getId())) {
                     foundIds.add(synset.getId());
-                    ret.add(new SmubySense(synset, this));
+                    ret.add(new SmdivSense(synset, this));
                 }
             }
         }
@@ -322,7 +339,7 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
 
     @Override
     public List<String> getBaseForms(String derivation) throws LinguisticOracleException {
-        log.warn("CALLED getBaseForms, WHICH IS NOT WELL SUPPORTED BY SmubyOracle.");
+        log.trace("CALLED getBaseForms, WHICH IS NOT WELL SUPPORTED BY SmubyOracle.");
         return diversicon.getLemmaStringsByWrittenForm(derivation);
     }
 
@@ -338,18 +355,49 @@ public class SmubyOracle implements ILinguisticOracle, ISenseMatcher {
             throw new LinguisticOracleException("Couldn't find provided id!", ex);
         }
         try {
-            return new SmubySense(ubysyn, this);
+            return new SmdivSense(ubysyn, this);
         } catch (Exception ex) {
             throw new LinguisticOracleException("Error while creating a UbySense!", ex);
         }
 
     }
 
-    // IF we really need this look at UBY's Component class
     @Override
     public List<List<String>> getMultiwords(String beginning) throws LinguisticOracleException {
-        log.warn("CALLED getMultiwords WHICH IS NOT SUPPORTED BY SmubyOracle, RETURNING AN EMPTY LIST");
-        return new ArrayList();
+        
+        List<List<String>> ret = new ArrayList(); 
+        
+        List<LexicalEntry> lexEntries = diversicon.getLexicalEntriesByLemmaPrefix(beginning, null, null);        
+        
+        for (LexicalEntry lexEntry : lexEntries){
+            // note Component is never used in Wordnet transformer!
+            ListOfComponents loc = lexEntry.getListOfComponents();
+            if (loc == null){
+                if (lexEntry.getLemmaForm() != null){
+                    String[] arr = lexEntry.getLemmaForm().split(" ");
+                    if (arr.length > 1){
+                        ArrayList<String> mw1 = new ArrayList<>();
+                        for (String s : arr){
+                            mw1.add(s);                        
+                        }
+                        ret.add(mw1);
+                    }
+                }                
+            } else {
+                List<Component> comps = loc.getComponents();
+                ArrayList<String> mw = new ArrayList<>();
+                
+                if (comps.size() > 1){
+                    ArrayList<String> mw2 = new ArrayList<>();
+                    for (Component comp : comps){
+                        mw.add(comp.getTargetLexicalEntry().getLemmaForm());
+                    }
+                    ret.add(mw2);
+                }
+            }
+        }
+        return ret;
+        
     }
 
     public Diversicon getDiversicon() {

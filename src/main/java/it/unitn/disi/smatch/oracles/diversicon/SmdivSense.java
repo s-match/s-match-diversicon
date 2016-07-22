@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby;
+package it.unitn.disi.smatch.oracles.diversicon;
 
 import it.unitn.disi.diversicon.Diversicon;
 import it.unitn.disi.diversicon.internal.Internals;
@@ -25,19 +25,19 @@ import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
  * WordNet-based sense implementation.
  *
  */
-public class SmubySense implements ISense, Serializable {
+public class SmdivSense implements ISense, Serializable {
     
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LoggerFactory.getLogger(SmubySense.class);
+    private static final Logger log = LoggerFactory.getLogger(SmdivSense.class);
 
     private Synset synset;
 
     private Diversicon diversicon;
 
-    private SmubyOracle oracle;
+    private SmdivOracle oracle;
 
-    public SmubySense(Synset synset, SmubyOracle oracle) {
+    public SmdivSense(Synset synset, SmdivOracle oracle) {
         Objects.requireNonNull(synset);
         Objects.requireNonNull(oracle);
         this.synset = synset;
@@ -78,14 +78,14 @@ public class SmubySense implements ISense, Serializable {
                         Objects.requireNonNull(lemma);
                         ret.add(lemma);
                     } catch (Exception ex) {
-                        throw new SmubyException("Error while retrieving lemma!");
+                        throw new SmdivException("Error while retrieving lemma!");
                     }
                 } catch (Exception ex) {
-                    throw new SmubyException("Error while retrieving lexical entry for sense " + ubySense.getId(), ex);
+                    throw new SmdivException("Error while retrieving lexical entry for sense " + ubySense.getId(), ex);
                 }
             }
         } catch (Exception ex) {
-            throw new SmubyException("Error while retrieving lemmas for synset " + synset.getId() + ", returning an empty list", ex);
+            throw new SmdivException("Error while retrieving lemmas for synset " + synset.getId() + ", returning an empty list", ex);
         }
         return Collections.unmodifiableList(ret);
         
@@ -147,7 +147,7 @@ public class SmubySense implements ISense, Serializable {
                                           .getConnectedSynsets(getId(), depth, relNames);
             while (iter.hasNext()) {
                 Synset syn = iter.next();
-                ret.add(new SmubySense(syn, oracle));
+                ret.add(new SmdivSense(syn, oracle));
             }
             return Collections.unmodifiableList(ret);
             

@@ -8,28 +8,27 @@
 		<version>1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>s-match-uby</artifactId>
+	<artifactId>s-match-diversicon</artifactId>
 	<packaging>jar</packaging>
 	<version>0.1.0-SNAPSHOT</version>
-	<name>S-Match Uby</name>
-	<description>Extensions of S-Match to allow using linguistic resources in LMF format through UBY framework.</description>
+	<name>S-Match Diversicon</name>
+	<description>Extensions of S-Match to allow using linguistic resources in LMF format through Diversicon / UBY framework.</description>
 
 	<scm>
-		<connection>scm:git:https://github.com/s-match/s-match-uby.git</connection>
-		<developerConnection>scm:git:git@github.com:s-match/s-match-uby.git</developerConnection>
-		<url>https://github.com/s-match/s-match-uby</url>
+		<connection>scm:git:https://github.com/s-match/s-match-diversicon.git</connection>
+		<developerConnection>scm:git:git@github.com:s-match/s-match-diversicon.git</developerConnection>
+		<url>https://github.com/s-match/s-match-diversicon</url>
 		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
 		<system>Github</system>
-		<url>https://github.com/s-match/s-match-uby/issues</url>
+		<url>https://github.com/s-match/s-match-diversicon/issues</url>
 	</issueManagement>
 
 	<properties>
-		<dkpro.uby.version>0.7.0</dkpro.uby.version>
 		<diversicon.version>0.1.0-SNAPSHOT</diversicon.version>
-		<diversicon.slf4j.version>1.7.21</diversicon.slf4j.version>
+		<s-match.version>2.0.0-SNAPSHOT</s-match.version>
 	</properties>
 
 	<repositories>
@@ -39,30 +38,14 @@
 		</repository>
 	</repositories>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>de.tudarmstadt.ukp.uby</groupId>
-				<artifactId>de.tudarmstadt.ukp.uby</artifactId>
-				<version>${dkpro.uby.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>it.unitn.disi</groupId>
 			<artifactId>s-match-core</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
+			<version>${s-match.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${diversicon.slf4j.version}</version> <!-- Need it for this : http://www.slf4j.org/codes.html#log4j_version -->
-		</dependency>
 
 
 		<dependency>
@@ -76,12 +59,11 @@
 		<dependency>
 			<groupId>it.unitn.disi</groupId>
 			<artifactId>diversicon</artifactId>
-			<version>${diversicon.version}</version>			
+			<version>${diversicon.version}</version>
 		</dependency>
 
 		<!-- ************ TESTING ***************** -->
-
-		<dependency>
+	<dependency>
 			<scope>test</scope>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -89,34 +71,44 @@
 		</dependency>
 
 		<dependency>
+			<scope>test</scope>		
 			<groupId>it.unitn.disi</groupId>
 			<artifactId>diversicon</artifactId>
 			<type>test-jar</type>
 			<version>${diversicon.version}</version>
-			<scope>test</scope>
 			<exclusions> <!-- s-match stuff uses log4j -->
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-classic</artifactId>
 				</exclusion>
+						
 			</exclusions>
 
 		</dependency>
 
 		<dependency>
-			<scope>runtime</scope>
+			<scope>test</scope>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>${diversicon.slf4j.version}</version>
+			<version>${slf4j.version}</version>
 		</dependency>
+
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<scope>test</scope>
+			<groupId>it.unitn.disi</groupId>
+			<artifactId>s-match-io</artifactId>
+			<version>${s-match.version}</version>
 		</dependency>
-
-
+		
+		<dependency>
+			<scope>test</scope>
+			<groupId>it.unitn.disi</groupId>
+			<artifactId>s-match-logic</artifactId>
+			<version>${s-match.version}</version>
+		</dependency>		
+		
+	
 	</dependencies>
 
 	<build>
@@ -135,6 +127,35 @@
 				</includes>
 			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>**/*IT*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*IT*</include>
+					</includes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 	<profiles>
 		<profile>

@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby.test;
+package it.unitn.disi.smatch.oracles.diversicon.test;
 
 import static it.unitn.disi.diversicon.internal.Internals.newArrayList;
 import static org.junit.Assert.assertEquals;
@@ -26,12 +26,12 @@ import it.unitn.disi.smatch.SMatchException;
 import it.unitn.disi.smatch.data.ling.ISense;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.SenseMatcherException;
-import it.unitn.disi.smatch.oracles.uby.SmubyOracle;
-import it.unitn.disi.smatch.oracles.uby.SmubySense;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivOracle;
+import it.unitn.disi.smatch.oracles.diversicon.SmdivSense;
 
-public class SmubyOracleTest {
+public class SmdivOracleTest {
 
-    private static final Logger log = LoggerFactory.getLogger(SmubyOracleTest.class);
+    private static final Logger log = LoggerFactory.getLogger(SmdivOracleTest.class);
 
     private DBConfig dbConfig;
 
@@ -40,7 +40,7 @@ public class SmubyOracleTest {
         dbConfig = DivTester.createNewDbConfig();
     }
 
-    @After
+    @After  
     public void afterMethod() {
         dbConfig = null;
     }
@@ -56,7 +56,7 @@ public class SmubyOracleTest {
 
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                                             .lexicon()
@@ -79,7 +79,7 @@ public class SmubyOracleTest {
         
         List<ISense> senses = oracle.getSenses("a");
                 
-        SmubySense sense = (SmubySense) senses.get(0);
+        SmdivSense sense = (SmdivSense) senses.get(0);
         assertEquals(1, senses.size());        
         assertEquals("synset 2", sense.getSynset().getId());
         assertEquals("a", sense.getLemmas().get(0));
@@ -93,7 +93,7 @@ public class SmubyOracleTest {
         
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                                             .lexicon()
@@ -130,7 +130,7 @@ public class SmubyOracleTest {
         
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                                             .lexicon()
@@ -172,7 +172,7 @@ public class SmubyOracleTest {
     public void testGetMultiwords() throws LinguisticOracleException{
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                 .lexicon()
@@ -187,8 +187,9 @@ public class SmubyOracleTest {
         div.importResource( lexicalResource, true);
         
         
-        assertEquals(newArrayList(), oracle.getMultiwords("a"));
-        assertEquals(newArrayList(), oracle.getMultiwords("a b"));
+        assertEquals(newArrayList(newArrayList("a","b")), oracle.getMultiwords("a"));
+        assertEquals(newArrayList(newArrayList("a","b")), oracle.getMultiwords("a b"));
+        assertEquals(newArrayList(), oracle.getMultiwords("c"));
         assertEquals(new ArrayList(), oracle.getMultiwords("666"));
         
         div.getSession().close();
@@ -199,7 +200,7 @@ public class SmubyOracleTest {
     public void testGetBaseforms() throws LinguisticOracleException{
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                 .lexicon()
@@ -227,7 +228,7 @@ public class SmubyOracleTest {
         
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                 .lexicon()
@@ -245,9 +246,9 @@ public class SmubyOracleTest {
         Diversicon div = oracle.getDiversicon();
         div.importResource( lexicalResource, true);
         
-        SmubySense sense1 = (SmubySense) oracle.getSenses("a").get(0);
-        SmubySense sense2 = (SmubySense) oracle.getSenses("b").get(0);
-        SmubySense sense3 = (SmubySense) oracle.getSenses("c").get(0);   
+        SmdivSense sense1 = (SmdivSense) oracle.getSenses("a").get(0);
+        SmdivSense sense2 = (SmdivSense) oracle.getSenses("b").get(0);
+        SmdivSense sense3 = (SmdivSense) oracle.getSenses("c").get(0);   
                        
         assertTrue(oracle.isSourceMoreGeneralThanTarget(sense1, sense2));
         assertTrue(oracle.isSourceMoreGeneralThanTarget(sense2, sense3));
@@ -271,7 +272,7 @@ public class SmubyOracleTest {
     public void testCreateSense() throws LinguisticOracleException{
         Diversicons.dropCreateTables(dbConfig);
         
-        SmubyOracle oracle = new SmubyOracle(dbConfig, null);
+        SmdivOracle oracle = new SmdivOracle(dbConfig);
         
         LexicalResource lexicalResource = LmfBuilder.lmf()
                 .lexicon()
@@ -289,9 +290,9 @@ public class SmubyOracleTest {
         Diversicon div = oracle.getDiversicon();
         div.importResource( lexicalResource, true);
         
-        SmubySense sense1 = (SmubySense) oracle.createSense("synset 1");
+        SmdivSense sense1 = (SmdivSense) oracle.createSense("synset 1");
         
-        SmubySense sense2 = (SmubySense) oracle.createSense("synset 2");
+        SmdivSense sense2 = (SmdivSense) oracle.createSense("synset 2");
         
         try {
             oracle.createSense("666");
@@ -306,48 +307,6 @@ public class SmubyOracleTest {
     
 
 
-    @Test
-    public void test(){
-        /*
-         * System.out.println("Starting example...");
-         * System.out.println("Creating MatchManager...");
-         * IMatchManager mm = MatchManager.getInstanceFromResource(
-         * "/it/unitn/disi/smatch/oracles/uby/test/conf/s-match.xml");
-         * 
-         * String example = "Courses";
-         * System.out.println("Creating source context...");
-         * IContext s = mm.createContext();
-         * s.createRoot(example);
-         * 
-         * System.out.println("Creating target context...");
-         * IContext t = mm.createContext();
-         * INode root = t.createRoot("Course");
-         * INode node = root.createChild("College of Arts and Sciences");
-         * node.createChild("English");
-         * 
-         * node = root.createChild("College Engineering");
-         * node.createChild("Civil and Environmental Engineering");
-         * 
-         * System.out.println("Preprocessing source context...");
-         * mm.offline(s);
-         * 
-         * System.out.println("Preprocessing target context...");
-         * mm.offline(t);
-         * 
-         * System.out.println("Matching...");
-         * IContextMapping<INode> result = mm.online(s, t);
-         * 
-         * System.out.println("Processing results...");
-         * System.out.println("Printing matches:");
-         * for (IMappingElement<INode> e : result) {
-         * System.out.println(e.getSource().nodeData().getName() + "\t" +
-         * e.getRelation() + "\t" + e.getTarget().nodeData().getName());
-         * }
-         * 
-         * System.out.println("Done");
-         */
-
-    }
    
 
 }

@@ -1,4 +1,4 @@
-package it.unitn.disi.smatch.oracles.uby;
+package it.unitn.disi.smatch.oracles.diversicon;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ import it.unitn.disi.smatch.data.ling.ISense;
  * 
  * @since 0.1
  */
-public final class SmubyUtils {
+public final class SmdivUtils {
 
 
-    private static final Logger log = LoggerFactory.getLogger(SmubyUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(SmdivUtils.class);
 
 
 
@@ -48,7 +48,7 @@ public final class SmubyUtils {
     private static Map<DBConfig, Configuration> cachedHibernateConfigurations = new HashMap();
 
     
-    private SmubyUtils() {
+    private SmdivUtils() {
     }
 
  
