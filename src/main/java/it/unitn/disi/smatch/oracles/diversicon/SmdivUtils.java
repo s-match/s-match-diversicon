@@ -33,15 +33,15 @@ import de.tudarmstadt.ukp.lmf.transform.DBConfig;
 import it.unitn.disi.smatch.data.ling.ISense;
 
 /**
- * Utility class for S-match Uby
+ * Utility class for S-match Diversicon
  * 
- * @since 0.1
+ * @since 0.1.0
+ * @author <a rel="author" href="http://davidleoni.it/">David Leoni</a>
  */
 public final class SmdivUtils {
 
 
     private static final Logger log = LoggerFactory.getLogger(SmdivUtils.class);
-
 
 
 
@@ -52,6 +52,10 @@ public final class SmdivUtils {
     }
 
  
+    /**
+     * @since 0.1.0
+     * 
+     */
     public static ArrayList<String> getIds(Iterable<ISense> senses){
         ArrayList<String> ret = new ArrayList();
         

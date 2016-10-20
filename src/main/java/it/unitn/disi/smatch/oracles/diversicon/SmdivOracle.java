@@ -1,17 +1,20 @@
 package it.unitn.disi.smatch.oracles.diversicon;
 
-import it.disi.unitn.diversicon.exceptions.DivException;
 import it.unitn.disi.diversicon.Diversicon;
 import it.unitn.disi.diversicon.Diversicons;
 import it.unitn.disi.diversicon.data.DivWn31;
+import it.unitn.disi.diversicon.exceptions.DivException;
+import it.unitn.disi.diversicon.exceptions.DivIoException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,22 +32,32 @@ import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.SenseMatcherException;
 
 /**
- * Oracle to access LMF XMLs via
- * <a href="https://dkpro.github.io/dkpro-uby/" target="_blank">DKPRO UBY
- * framework</a>.
- * todo talk about db
+ * Oracle to access LMF XMLs via <a href="https://github.com/DavidLeoni/diversicon" target="_blank"> Diversicon
+ * </a> /
+ * <a href="https://dkpro.github.io/dkpro-uby/" target="_blank"> UBY
+ * </a> framework. todo talk about db
  * 
  * This oracle strives to give back some info regardless of possible
  * inconsistencies or errors coming from the underlying LMF database
  * 
  * @since 0.1.0
- * @author David Leoni
+ * @author <a rel="author" href="http://davidleoni.it/">David Leoni</a>
  *
  */
 public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     private static final Logger log = LoggerFactory.getLogger(SmdivOracle.class);
 
+    
+    /**
+     * Default path, relative to user home of the file cache of S-Match diversicon.
+     * 
+     * @since 0.1.0
+     */
+    public static final String DEFAULT_CACHE_PATH = ".config/s-match/diversicon/cache/";
+    
+    private File cacheDir;
+    
     private Diversicon diversicon;
 
     /**
@@ -55,8 +68,10 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      * @since 0.1.0
      */
     public SmdivOracle() {
+        this.cacheDir = new File(System.getProperty("user.home") + File.separator
+                + DEFAULT_CACHE_PATH);
         try {
-            DBConfig defaultDbConfig = Diversicons.fetchH2Db(DivWn31.ID, DivWn31.of().getVersion());
+            DBConfig defaultDbConfig = Diversicons.fetchH2Db(this.cacheDir, DivWn31.NAME, DivWn31.of().getVersion());
             diversicon = Diversicon.connectToDb(defaultDbConfig);
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
@@ -65,7 +80,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * Connects to h2 file database at given path, using 
-     * {@link Diversicons#makeDefaultH2FileDbConfig(String, boolean) default
+     * {@link Diversicons#h2MakeDefaultFileDbConfig(String, boolean) default
      * connection config}  
      * 
      * @param filepath
@@ -76,7 +91,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      */
     public SmdivOracle(String filepath) {
         try {
-            diversicon = Diversicon.connectToDb(Diversicons.makeDefaultH2FileDbConfig(filepath, true));
+            diversicon = Diversicon.connectToDb(Diversicons.h2MakeDefaultFileDbConfig(filepath, true));
 
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
@@ -365,7 +380,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     @Override
     public List<List<String>> getMultiwords(String beginning) throws LinguisticOracleException {
         
-        List<List<String>> ret = new ArrayList(); 
+        List<List<String>> ret = new ArrayList<>(); 
         
         List<LexicalEntry> lexEntries = diversicon.getLexicalEntriesByLemmaPrefix(beginning, null, null);        
         
@@ -400,8 +415,51 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         
     }
 
+    /**
+     * Returns Diversicon object.
+     * 
+     * @since 0.1.0
+     */
     public Diversicon getDiversicon() {
         return diversicon;
     }
 
+    
+
+    /**
+     * EXPERIMENTAL - IMPLEMENTATION MIGHT WILDLY CHANGE
+     * 
+     * Clean cache
+     * 
+     * @throws SmdivIoException
+     * 
+     * @since 0.1.0
+     * 
+     */
+    public void cleanCache() {
+        File cacheDir = getCacheDir();
+        if (!cacheDir.getAbsolutePath()
+                     .endsWith("cache")) {
+            throw new IllegalStateException(
+                    "Failed security check prior deleting S-Match Diversicon cache! System says it's located at " + cacheDir);
+        }
+        try {
+            if (cacheDir.exists()) {
+                log.info("Cleaning S-Match Diversicon cache directory " + cacheDir.getAbsolutePath() + "  ...");
+                FileUtils.deleteDirectory(cacheDir);
+                log.info("Cleaning S-Match Diversicon cache: done");
+            }
+        } catch (IOException ex) {
+            throw new DivIoException("Error while deleting cache dir " + cacheDir.getAbsolutePath(), ex);
+        }
+    }
+
+    /**
+     * @since 0.1.0
+     */
+    public File getCacheDir() {        
+        return cacheDir;
+    }
+    
+    
 }

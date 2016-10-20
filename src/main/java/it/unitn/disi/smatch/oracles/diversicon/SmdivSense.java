@@ -22,8 +22,10 @@ import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
 
 /**
  * 
- * WordNet-based sense implementation.
- *
+ * Diversicon-based sense implementation.
+ * 
+ * @since 0.1.0
+ * @author <a rel="author" href="http://davidleoni.it/">David Leoni</a>
  */
 public class SmdivSense implements ISense, Serializable {
     
@@ -37,6 +39,10 @@ public class SmdivSense implements ISense, Serializable {
 
     private SmdivOracle oracle;
 
+    /**
+     * @since 0.1.0
+     * 
+     */
     public SmdivSense(Synset synset, SmdivOracle oracle) {
         Objects.requireNonNull(synset);
         Objects.requireNonNull(oracle);
@@ -132,6 +138,7 @@ public class SmdivSense implements ISense, Serializable {
      *            Only edges with {@code depth} equal or less than depth are retrieved. 
      *            If -1 all edges are returned
      * @throws LinguisticOracleException
+     * @since 0.1.0 
      */
     public List<ISense> getRelationTargets(int depth, String... relNamesArr) throws LinguisticOracleException {
 
@@ -157,10 +164,16 @@ public class SmdivSense implements ISense, Serializable {
         
     }
 
+    /**
+     * @since 0.1.0
+     */
     public Synset getSynset() {
         return synset;
     }
 
+    /**
+     * @since 0.1.0 
+     */
     public void setSynset(Synset synset) {
         this.synset = synset;
     }

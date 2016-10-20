@@ -1,10 +1,14 @@
 package it.unitn.disi.smatch.oracles.diversicon.test;
 
 import static it.unitn.disi.diversicon.internal.Internals.newArrayList;
+import static it.unitn.disi.diversicon.test.DivTester.tid;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +61,8 @@ public class SmdivOracleTest {
         Diversicons.dropCreateTables(dbConfig);
         
         SmdivOracle oracle = new SmdivOracle(dbConfig);
-        
-        LexicalResource lexicalResource = LmfBuilder.lmf()
+                
+        LexicalResource lexRes = LmfBuilder.lmf()
                                             .lexicon()
                                             .synset()                                            
                                             .lexicalEntry("ab")
@@ -67,21 +71,24 @@ public class SmdivOracleTest {
                                             .build();
                                                                                                
         Diversicon div = oracle.getDiversicon();
-        div.importResource(lexicalResource, true);
         
-        DivTester.checkDb(lexicalResource, div);
+        
+        
+        div.importResource(lexRes, DivTester.createLexResPackage(lexRes), true);
+        
+        DivTester.checkDb(lexRes, div);
 
-        assertEquals("synset 1", oracle.getSenses("ab").get(0).getId());
+        assertEquals(tid("synset-1"), oracle.getSenses("ab").get(0).getId());
         
         assertEquals(1, div.getLexicalEntries("a", null).size());
         
-        assertEquals(new ArrayList(), oracle.getSenses("c"));
+        assertEquals(new ArrayList<>(), oracle.getSenses("c"));
         
         List<ISense> senses = oracle.getSenses("a");
                 
         SmdivSense sense = (SmdivSense) senses.get(0);
         assertEquals(1, senses.size());        
-        assertEquals("synset 2", sense.getSynset().getId());
+        assertEquals(tid("synset-2"), sense.getSynset().getId());
         assertEquals("a", sense.getLemmas().get(0));
         
         oracle.getDiversicon().getSession().close();
@@ -190,7 +197,7 @@ public class SmdivOracleTest {
         assertEquals(newArrayList(newArrayList("a","b")), oracle.getMultiwords("a"));
         assertEquals(newArrayList(newArrayList("a","b")), oracle.getMultiwords("a b"));
         assertEquals(newArrayList(), oracle.getMultiwords("c"));
-        assertEquals(new ArrayList(), oracle.getMultiwords("666"));
+        assertEquals(new ArrayList<>(), oracle.getMultiwords("666"));
         
         div.getSession().close();
 
@@ -217,7 +224,7 @@ public class SmdivOracleTest {
         
         assertEquals(newArrayList("a"), oracle.getBaseForms("a"));
         assertEquals(newArrayList("a b"), oracle.getBaseForms("a b"));
-        assertEquals(new ArrayList(), oracle.getBaseForms("666"));
+        assertEquals(new ArrayList<>(), oracle.getBaseForms("666"));
         
         oracle.getDiversicon().getSession().close();
     }
@@ -290,9 +297,9 @@ public class SmdivOracleTest {
         Diversicon div = oracle.getDiversicon();
         div.importResource( lexicalResource, true);
         
-        SmdivSense sense1 = (SmdivSense) oracle.createSense("synset 1");
+        SmdivSense sense1 = (SmdivSense) oracle.createSense(tid("synset-1"));
         
-        SmdivSense sense2 = (SmdivSense) oracle.createSense("synset 2");
+        SmdivSense sense2 = (SmdivSense) oracle.createSense(tid("synset-2"));
         
         try {
             oracle.createSense("666");
@@ -306,7 +313,21 @@ public class SmdivOracleTest {
     }
     
 
-
+    
+    /**
+     * @since 0.1.0
+     */
+    @Test
+    public void testCleanCache() throws IOException {
+        
+        assertFalse(Diversicons.getCacheDir().exists());
+        Files.createDirectories(Diversicons.getCacheDir().toPath());
+        Files.createFile(Paths.get(Diversicons.getCacheDir().getAbsolutePath(), "test.txt"));
+        assertTrue(Diversicons.getCacheDir().exists());
+        Diversicons.cleanCache();
+        assertFalse(Diversicons.getCacheDir().exists());        
+        
+    }
    
 
 }
