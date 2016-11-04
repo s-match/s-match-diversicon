@@ -80,12 +80,12 @@
     </bean>
 
 
-    <bean id="linguisticOracle" class="it.unitn.disi.smatch.oracles.uby.SmubyOracle">        
-       <!-- <constructor-arg name="filepath" value="~/.config/diversicon/cache/it.unitn.disi.diversicon.data.wn30.div-wn30/0.1.0/div-wn30"/>       
+    <bean id="linguisticOracle" class="it.unitn.disi.smatch.oracles.diversicon.SmdivOracle">        
+       <!-- <constructor-arg name="filepath" value="~/.config/s-match/diversicon/cache/div-wn31/0.1.0/div-wn31"/>       
        <!-- <constructor-arg ref="dbConfig"/>  -->       
     </bean>
     <!--   <bean id="dbConfig" class="de.tudarmstadt.ukp.lmf.transform.DBConfig">
-		     <constructor-arg name="url" value="jdbc:h2:file:~/.config/diversicon/cache/it.unitn.disi.diversicon.data.wn30.div-wn30/0.1.0/div-wn30;ACCESS_MODE_DATA=r"
+		     <constructor-arg name="url" value="jdbc:h2:file:~/.config/s-match/diversicon/cache/div-wn31/0.1.0/div-wn31;ACCESS_MODE_DATA=r"
 		     <constructor-arg name="jdbc_driver_class" value="org.h2.Driver">
 		     <constructor-arg name="db_vendor" value="de.tudarmstadt.ukp.lmf.hibernate.UBYH2Dialect">
 		     <constructor-arg name="user" value="root">

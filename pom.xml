@@ -57,12 +57,29 @@
 
 
 		<dependency>
-			<groupId>it.unitn.disi</groupId>
-			<artifactId>diversicon</artifactId>
+			<groupId>eu.kidf</groupId>
+			<artifactId>diversicon-core</artifactId>
 			<version>${diversicon.version}</version>
 		</dependency>
 
+		<dependency>				
+			<groupId>eu.kidf</groupId>
+			<artifactId>div-wn31-model</artifactId>
+			<version>${diversicon.version}</version>			
+		</dependency>		
+
 		<!-- ************ TESTING ***************** -->
+		
+
+		
+		<dependency>
+			<scope>test</scope>		
+			<groupId>eu.kidf</groupId>
+			<artifactId>div-wn31-h2db</artifactId>
+			<version>${diversicon.version}</version>			
+		</dependency>
+		
+		
 	<dependency>
 			<scope>test</scope>
 			<groupId>junit</groupId>
@@ -72,8 +89,8 @@
 
 		<dependency>
 			<scope>test</scope>		
-			<groupId>it.unitn.disi</groupId>
-			<artifactId>diversicon</artifactId>
+			<groupId>eu.kidf</groupId>
+			<artifactId>diversicon-core</artifactId>
 			<type>test-jar</type>
 			<version>${diversicon.version}</version>
 			<exclusions> <!-- s-match stuff uses log4j -->

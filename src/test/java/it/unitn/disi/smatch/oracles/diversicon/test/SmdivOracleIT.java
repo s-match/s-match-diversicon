@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
-import it.unitn.disi.diversicon.test.DivTester;
+import eu.kidf.diversicon.core.test.DivTester;
 import it.unitn.disi.smatch.IMatchManager;
 import it.unitn.disi.smatch.MatchManager;
 import it.unitn.disi.smatch.SMatchException;
@@ -37,24 +37,36 @@ import it.unitn.disi.smatch.preprocessors.DefaultContextPreprocessor;
 import it.unitn.disi.smatch.renderers.context.SimpleXMLContextRenderer;
 import it.unitn.disi.smatch.renderers.mapping.PlainMappingRenderer;
 
+/**
+ * @since 0.1.0
+ */
 public class SmdivOracleIT {
 
     private static final Logger log = LoggerFactory.getLogger(SmdivOracleIT.class);
 
     private DBConfig dbConfig;
 
+    /**
+     * @since 0.1.0
+     */
     @Before
     public void beforeMethod() {
         dbConfig = DivTester.createNewDbConfig();
     }
 
+    /**
+     * @since 0.1.0
+     */
     @After
     public void afterMethod() {
         dbConfig = null;
-    }       
+    }  
     
+    /**
+     * @since 0.1.0
+     */
     @Test
-    public void testSmuby() throws SMatchException {
+    public void testSmdiv() throws SMatchException {
         
           log.info("Starting example...");
           log.info("Creating MatchManager...");
@@ -63,7 +75,7 @@ public class SmdivOracleIT {
           // IMatchManager mm = MatchManager.getInstanceFromResource(
            // "/it/unitn/disi/smatch/oracles/uby/test/conf/s-match.xml");
           
-          IMappingFactory mappingFactory = new HashMapping();
+          IMappingFactory mappingFactory = new HashMapping<>();
           
           SmdivOracle oracle = new SmdivOracle();
           
@@ -133,6 +145,9 @@ public class SmdivOracleIT {
 
     }
 
+    /**
+     * @since 0.1.0
+     */
     @Test
     public void testCw() throws SMatchException {
         

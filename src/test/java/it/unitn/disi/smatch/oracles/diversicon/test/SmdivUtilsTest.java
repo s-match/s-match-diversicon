@@ -1,29 +1,21 @@
 package it.unitn.disi.smatch.oracles.diversicon.test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.lmf.hibernate.UBYH2Dialect;
-import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
-import it.unitn.disi.diversicon.Diversicons;
-import it.unitn.disi.smatch.oracles.diversicon.SmdivNotFoundException;
 
 
-
+/**
+ * @since 0.1.0
+ */
 public class SmdivUtilsTest {
 
 		
@@ -32,12 +24,18 @@ public class SmdivUtilsTest {
 	private DBConfig dbConfig;
 		
 	
+	/**
+	 * @since 0.1.0
+	 */
 	@Before
 	public void beforeMethod(){
 		 dbConfig = new DBConfig("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "org.h2.Driver",
 				UBYH2Dialect.class.getName(), "root", "pass", true);		 		
 	}
 	
+	/**
+	 * @since 0.1.0
+	 */
 	@After
 	public void afterMethod(){
 		dbConfig = null;

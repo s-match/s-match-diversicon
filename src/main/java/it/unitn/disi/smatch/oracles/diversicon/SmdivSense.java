@@ -1,7 +1,7 @@
 package it.unitn.disi.smatch.oracles.diversicon;
 
-import it.unitn.disi.diversicon.Diversicon;
-import it.unitn.disi.diversicon.internal.Internals;
+import eu.kidf.diversicon.core.Diversicon;
+import eu.kidf.diversicon.core.internal.Internals;
 import it.unitn.disi.smatch.data.ling.ISense;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 

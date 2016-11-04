@@ -1,0 +1,8 @@
+NOUN_INFLECTED=','s,s,ses,xes,zes,ches,shes,men,ies
+NOUN_UNINFLECTED= , , ,s,x,z,ch,sh,man,y
+VERB_INFLECTED=s,ies,es,es,ed,ed,ing,ing
+VERB_UNINFLECTED= ,y,e, ,e, , ,e
+ADJECTIVE_INFLECTED=er,est,er,est
+ADJECTIVE_UNINFLECTED= , ,e,e
+ADVERB_INFLECTED=
+ADVERB_UNINFLECTED=

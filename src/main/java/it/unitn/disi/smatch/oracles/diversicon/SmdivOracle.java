@@ -1,10 +1,10 @@
 package it.unitn.disi.smatch.oracles.diversicon;
 
-import it.unitn.disi.diversicon.Diversicon;
-import it.unitn.disi.diversicon.Diversicons;
-import it.unitn.disi.diversicon.data.DivWn31;
-import it.unitn.disi.diversicon.exceptions.DivException;
-import it.unitn.disi.diversicon.exceptions.DivIoException;
+import eu.kidf.diversicon.core.Diversicon;
+import eu.kidf.diversicon.core.Diversicons;
+import eu.kidf.diversicon.core.exceptions.DivException;
+import eu.kidf.diversicon.core.exceptions.DivIoException;
+import eu.kidf.diversicon.data.DivWn31;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +13,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
+import de.tudarmstadt.ukp.lmf.model.enums.EPartOfSpeech;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.model.morphology.Component;
 import de.tudarmstadt.ukp.lmf.model.morphology.ListOfComponents;
@@ -50,8 +52,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     
     /**
-     * Default path, relative to user home of the file cache of S-Match diversicon.
-     * 
+     * Default path of the file cache of S-Match diversicon. It is relative to the user home.
+     *
      * @since 0.1.0
      */
     public static final String DEFAULT_CACHE_PATH = ".config/s-match/diversicon/cache/";
@@ -62,7 +64,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * Connects to Wordnet 3.1 file database, extracting it to
-     * {@link it.unitn.disi.diversicon.Diversicons#CACHE_PATH user home}
+     * {@link eu.kidf.diversicon.core.Diversicons#CACHE_PATH user home}
      * if not already present.
      * 
      * @since 0.1.0
@@ -71,7 +73,10 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         this.cacheDir = new File(System.getProperty("user.home") + File.separator
                 + DEFAULT_CACHE_PATH);
         try {
-            DBConfig defaultDbConfig = Diversicons.fetchH2Db(this.cacheDir, DivWn31.NAME, DivWn31.of().getVersion());
+            DBConfig defaultDbConfig = Diversicons.fetchH2Db(
+                    this.cacheDir, 
+                    DivWn31.NAME, 
+                    DivWn31.of().getVersion());
             diversicon = Diversicon.connectToDb(defaultDbConfig);
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
@@ -90,9 +95,10 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      * @since 0.1.0
      */
     public SmdivOracle(String filepath) {
+        Objects.requireNonNull(filepath);
         try {
-            diversicon = Diversicon.connectToDb(Diversicons.h2MakeDefaultFileDbConfig(filepath, true));
-
+            diversicon = Diversicon.connectToDb(
+                    Diversicons.h2MakeDefaultFileDbConfig(filepath, true));
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
         }
@@ -187,6 +193,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      *         according to oracle
      * @throws it.unitn.disi.smatch.oracles.SenseMatcherException
      *             SenseMatcherException
+     *             
+     * @since 0.1.0
      */
     // copied from wordnet oracle and removed caching. todo review to check
     // caching is actually needed
@@ -211,6 +219,9 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         }
     }
 
+    /**
+     * @since 0.1.0
+     */
     @Override
     public boolean isSourceMoreGeneralThanTarget(ISense source, ISense target) throws SenseMatcherException {
 
@@ -239,6 +250,9 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         }
     }
 
+    /**
+     * @since 0.1.0
+     */
     private static void checkSourceTarget(ISense source, ISense target) throws SenseMatcherException {
 
         if (source == null) {
@@ -269,12 +283,18 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     }
 
+    /**
+     * @since 0.1.0
+     */    
     @Override
     public boolean isSourceLessGeneralThanTarget(ISense source, ISense target) throws SenseMatcherException {
         checkSourceTarget(source, target);
         return isSourceMoreGeneralThanTarget(target, source);
     }
 
+    /**
+     * @since 0.1.0
+     */    
     @Override
     public boolean isSourceSynonymTarget(ISense source, ISense target) throws SenseMatcherException {
         checkSourceTarget(source, target);
@@ -294,7 +314,10 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         }
         return false;
     }
-
+    
+    /**
+     * @since 0.1.0
+     */
     @Override
     public boolean isSourceOppositeToTarget(ISense source, ISense target) throws SenseMatcherException {
 
@@ -317,26 +340,29 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         return false;
     }
 
-    // todo g here inflections should be dealt with by the oracle
+    /**
+     * @since 0.1.0
+     */
     @Override
-    public boolean isEqual(String str1, String str2) throws LinguisticOracleException {
-        log.warn("CALLED isEquals(str1, str2), WHICH IS NOT WELL SUPPORTED BY SmubyOracle.");
-        return diversicon.getLemmaStringsByWrittenForm(str1)
-                         .equals(diversicon.getLemmaStringsByWrittenForm(str2));
+    public boolean isEqual(String str1, String str2) throws LinguisticOracleException {                
+        return new HashSet<>(getBaseForms(str1)).equals(
+                new HashSet<>(getBaseForms(str2)));
     }
 
     /**
      * {@inheritDoc}
      * 
      * NOTE: input word is supposed to be a lemma
+     * 
+     * @since 0.1.0
      */
     @Override
     public List<ISense> getSenses(String word) throws LinguisticOracleException {
         List<LexicalEntry> lexEntries = diversicon.getLexicalEntries(word, null);
 
-        HashSet<String> foundIds = new HashSet();
+        HashSet<String> foundIds = new HashSet<>();
 
-        List<ISense> ret = new ArrayList();
+        List<ISense> ret = new ArrayList<>();
 
         // avoid dups
         for (LexicalEntry lexEntry : lexEntries) {
@@ -352,12 +378,37 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         return ret;
     }
 
+    /**
+     * @since 0.1.0
+     */
     @Override
-    public List<String> getBaseForms(String derivation) throws LinguisticOracleException {
-        log.trace("CALLED getBaseForms, WHICH IS NOT WELL SUPPORTED BY SmubyOracle.");
-        return diversicon.getLemmaStringsByWrittenForm(derivation);
+    public List<String> getBaseForms(String derivation) throws LinguisticOracleException {                       
+               
+        List<String> lemmaStrings = diversicon.getLemmaStringsByWordForm(derivation, null, null);
+                
+        if (!lemmaStrings.isEmpty()){
+            return lemmaStrings;            
+        } else {
+            
+            Set<String> retSet = new HashSet<>();
+            for (String pos : SmdivUtils.SCROLL_POSES){
+                Set<String> candidateLemmas = SmdivUtils.lemmatizeEn(derivation, pos);
+                for (String s : candidateLemmas){
+                    retSet.addAll(diversicon.getLemmaStringsByWrittenForm(
+                            s, 
+                            EPartOfSpeech.valueOf(pos.toLowerCase()), 
+                            null));
+                }    
+            }                       
+            
+            return new ArrayList<>(retSet);
+        }
+        
     }
 
+    /**
+     * @since 0.1.0
+     */    
     // the create is misleading, it's actually retrieving a sense from oracle
     @Override
     public ISense createSense(String id) throws LinguisticOracleException {
@@ -377,6 +428,9 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     }
 
+    /**
+     * @since 0.1.0
+     */    
     @Override
     public List<List<String>> getMultiwords(String beginning) throws LinguisticOracleException {
         
@@ -460,6 +514,6 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     public File getCacheDir() {        
         return cacheDir;
     }
-    
+        
     
 }

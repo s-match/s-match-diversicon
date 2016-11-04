@@ -1,6 +1,7 @@
 package it.unitn.disi.smatch.oracles.diversicon;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -63,6 +64,29 @@ public final class SmdivUtils {
             ret.add(sense.getId());
         }
         return ret;
+    }
+
+    
+    static final String[] SCROLL_POSES = new String[]{"NOUN", "VERB", "ADJECTIVE", "ADVERB"};
+
+    /**
+     * Rough lemmatizer for English that gives back lemmas for all possible POSes.
+     *  
+     * @param pos one of {@link #SCROLL_POSES}
+     *  
+     * @since 0.1.0
+     */
+    static Set<String> lemmatizeEn(String derivation, String pos) {
+        InputStream is = SmdivUtils.class.getResourceAsStream("/lemmatizer/en-lemmatizer.bin");
+        SuffixModel suffixModel = new SuffixModel(is);
+        
+        SuffixProcessor proc = new SuffixProcessor(suffixModel);      
+        
+        Set<String> ret = new HashSet<>();
+                
+        ret.addAll(proc.process(derivation, pos));    
+                
+        return ret;                   
     }
     
     

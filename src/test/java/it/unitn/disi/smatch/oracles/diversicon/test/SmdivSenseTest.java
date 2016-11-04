@@ -16,10 +16,10 @@ import static it.unitn.disi.smatch.oracles.diversicon.test.SmdivUtilsTest.*;
 import de.tudarmstadt.ukp.lmf.model.core.LexicalResource;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
-import it.unitn.disi.diversicon.Diversicon;
-import it.unitn.disi.diversicon.Diversicons;
-import it.unitn.disi.diversicon.test.LmfBuilder;
-import it.unitn.disi.diversicon.test.DivTester;
+import eu.kidf.diversicon.core.Diversicon;
+import eu.kidf.diversicon.core.Diversicons;
+import eu.kidf.diversicon.core.test.LmfBuilder;
+import eu.kidf.diversicon.core.test.DivTester;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.diversicon.SmdivOracle;
 import it.unitn.disi.smatch.oracles.diversicon.SmdivSense;
@@ -31,11 +31,17 @@ public class SmdivSenseTest {
 
     private DBConfig dbConfig;
 
+    /**
+     * @since 0.1.0
+     */
     @Before
     public void beforeMethod() {
         dbConfig = DivTester.createNewDbConfig();
     }
 
+    /**
+     * @since 0.1.0
+     */
     @After
     public void afterMethod() {
         dbConfig = null;
@@ -47,7 +53,7 @@ public class SmdivSenseTest {
 
         SmdivOracle oracle = new SmdivOracle(dbConfig);
 
-        LexicalResource lexicalResource = LmfBuilder.lmf()
+        LexicalResource lexRes = LmfBuilder.lmf()
                                                     .lexicon()
                                                     .synset()
                                                     .lexicalEntry("a")
@@ -61,7 +67,9 @@ public class SmdivSenseTest {
                                                     .build();
 
         Diversicon div = oracle.getDiversicon();
-        div.importResource(lexicalResource, false);
+        div.importResource(lexRes,
+                DivTester.createLexResPackage(lexRes),
+                false);                
 
         SmdivSense sense1 = (SmdivSense) oracle.getSenses("a")
                                                .get(0);
@@ -72,14 +80,14 @@ public class SmdivSenseTest {
 
         assertEquals(
                 newHashSet("synset 2", "synset 3"),
-                new HashSet(getIds(sense1.getChildren())));
+                new HashSet<>(getIds(sense1.getChildren())));
         assertEquals(
                 newArrayList("synset 2"),
                 SmdivUtils.getIds(sense1.getChildren(1)));
 
         assertEquals(
                 newHashSet("synset 1", "synset 2"),
-                new HashSet(getIds(sense3.getParents())));
+                new HashSet<>(getIds(sense3.getParents())));
         assertEquals(
                 newArrayList("synset 2"),
                 getIds(sense3.getParents(1)));
@@ -96,7 +104,7 @@ public class SmdivSenseTest {
 
         SmdivOracle oracle = new SmdivOracle(dbConfig);
 
-        LexicalResource lexicalResource = LmfBuilder.lmf()
+        LexicalResource lexRes = LmfBuilder.lmf()
                                                     .lexicon()
                                                     .synset()
                                                     .definition("da1")
@@ -108,9 +116,11 @@ public class SmdivSenseTest {
                                                     .build();
 
         Diversicon div = oracle.getDiversicon();
-        div.importResource(lexicalResource, true);
+        div.importResource(lexRes,
+                DivTester.createLexResPackage(lexRes),
+                true);
         
-        DivTester.checkDb(lexicalResource, div);
+        DivTester.checkDb(lexRes, div);
         
         
         SmdivSense sense1 = (SmdivSense) oracle.getSenses("a")
