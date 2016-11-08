@@ -16,6 +16,7 @@ import static it.unitn.disi.smatch.oracles.diversicon.test.SmdivUtilsTest.*;
 import de.tudarmstadt.ukp.lmf.model.core.LexicalResource;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.Diversicon;
 import eu.kidf.diversicon.core.Diversicons;
 import eu.kidf.diversicon.core.test.LmfBuilder;
@@ -29,14 +30,14 @@ public class SmdivSenseTest {
 
     private static final Logger log = LoggerFactory.getLogger(SmdivSenseTest.class);
 
-    private DBConfig dbConfig;
+    private DivConfig divConfig;
 
     /**
      * @since 0.1.0
      */
     @Before
     public void beforeMethod() {
-        dbConfig = DivTester.createNewDbConfig();
+        divConfig = DivTester.createNewDivConfig();
     }
 
     /**
@@ -44,14 +45,14 @@ public class SmdivSenseTest {
      */
     @After
     public void afterMethod() {
-        dbConfig = null;
+        divConfig = null;
     }
 
     @Test
     public void testGetChildrenParents() throws LinguisticOracleException {
-        Diversicons.dropCreateTables(dbConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
-        SmdivOracle oracle = new SmdivOracle(dbConfig);
+        SmdivOracle oracle = new SmdivOracle(divConfig);
 
         LexicalResource lexRes = LmfBuilder.lmf()
                                                     .lexicon()
@@ -100,9 +101,9 @@ public class SmdivSenseTest {
 
     @Test
     public void testGetGlossLemmas() throws LinguisticOracleException {
-        Diversicons.dropCreateTables(dbConfig);
+        Diversicons.dropCreateTables(divConfig);
 
-        SmdivOracle oracle = new SmdivOracle(dbConfig);
+        SmdivOracle oracle = new SmdivOracle(divConfig);
 
         LexicalResource lexRes = LmfBuilder.lmf()
                                                     .lexicon()

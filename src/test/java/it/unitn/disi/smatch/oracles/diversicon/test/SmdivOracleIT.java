@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.lmf.transform.DBConfig;
+import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.test.DivTester;
 import it.unitn.disi.smatch.IMatchManager;
 import it.unitn.disi.smatch.MatchManager;
@@ -44,14 +45,14 @@ public class SmdivOracleIT {
 
     private static final Logger log = LoggerFactory.getLogger(SmdivOracleIT.class);
 
-    private DBConfig dbConfig;
+    private DivConfig divConfig;
 
     /**
      * @since 0.1.0
      */
     @Before
     public void beforeMethod() {
-        dbConfig = DivTester.createNewDbConfig();
+        divConfig = DivTester.createNewDivConfig();
     }
 
     /**
@@ -59,7 +60,7 @@ public class SmdivOracleIT {
      */
     @After
     public void afterMethod() {
-        dbConfig = null;
+        divConfig = null;
     }  
     
     /**
@@ -217,6 +218,8 @@ public class SmdivOracleIT {
         log.info("Done");
                
     }
+  
+
     
     
 }

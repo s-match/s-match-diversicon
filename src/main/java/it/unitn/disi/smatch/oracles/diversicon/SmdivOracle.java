@@ -1,5 +1,6 @@
 package it.unitn.disi.smatch.oracles.diversicon;
 
+import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.Diversicon;
 import eu.kidf.diversicon.core.Diversicons;
 import eu.kidf.diversicon.core.exceptions.DivException;
@@ -77,7 +78,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
                     this.cacheDir, 
                     DivWn31.NAME, 
                     DivWn31.of().getVersion());
-            diversicon = Diversicon.connectToDb(defaultDbConfig);
+            diversicon = Diversicon.connectToDb(DivConfig.of(defaultDbConfig));
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
         }
@@ -98,17 +99,28 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         Objects.requireNonNull(filepath);
         try {
             diversicon = Diversicon.connectToDb(
-                    Diversicons.h2MakeDefaultFileDbConfig(filepath, true));
+                    DivConfig.of(Diversicons.h2MakeDefaultFileDbConfig(filepath, true)));
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
         }
     }
 
-    public SmdivOracle(DBConfig dbConfig) {
-        Objects.requireNonNull(dbConfig);
+    /**
+     * @since 0.1.0
+     */
+    public SmdivOracle(DivConfig divConfig) {
+        Objects.requireNonNull(divConfig);
 
-        diversicon = Diversicon.connectToDb(dbConfig);
+        diversicon = Diversicon.connectToDb(divConfig);
+    }
+    
+    /**
+     * @since 0.1.0
+     */
+    public SmdivOracle(DivConfig.Builder divConfigBuilder) {
+        Objects.requireNonNull(divConfigBuilder);
 
+        diversicon = Diversicon.connectToDb(divConfigBuilder.build());
     }
 
     @Override
