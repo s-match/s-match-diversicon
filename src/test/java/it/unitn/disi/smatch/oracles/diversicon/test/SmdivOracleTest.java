@@ -119,7 +119,7 @@ public class SmdivOracleTest {
     @Test
     public void testIsSourceOppositeThanTarget() throws LinguisticOracleException, SenseMatcherException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -164,7 +164,7 @@ public class SmdivOracleTest {
     @Test
     public void testIsSourceSimilarTarget() throws LinguisticOracleException, SenseMatcherException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -214,7 +214,7 @@ public class SmdivOracleTest {
      */    
     @Test
     public void testGetMultiwords() throws LinguisticOracleException {
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -247,7 +247,7 @@ public class SmdivOracleTest {
      */    
     @Test
     public void testGetBaseforms() throws LinguisticOracleException {
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -278,9 +278,44 @@ public class SmdivOracleTest {
      * @since 0.1.0
      */    
     @Test
+    public void testGetBaseformsSmartphones() throws LinguisticOracleException {
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
+
+        SmdivOracle oracle = new SmdivOracle(divConfig);
+
+        LexicalResource lexRes = LmfBuilder.lmf()
+                                           .lexicon()
+                                           .synset()
+                                           .lexicalEntry("tablet")
+                                           .lexicalEntry("phablet")
+                                           .synset()
+                                           .lexicalEntry("phoneborg")
+                                           .build();
+
+        Diversicon div = oracle.getDiversicon();
+        div.importResource(lexRes,
+                DivTester.createLexResPackage(lexRes),
+                true);
+
+        assertEquals(newArrayList("tablet"), oracle.getBaseForms("tablets"));
+        assertEquals(newArrayList("tablet"), oracle.getBaseForms("tablet"));
+        assertEquals(newArrayList("phoneborg"), oracle.getBaseForms("phoneborgs"));
+        assertEquals(newArrayList("phoneborg"), oracle.getBaseForms("phoneborg"));
+        assertEquals(new ArrayList<>(), oracle.getBaseForms("666"));
+
+        oracle.getDiversicon()
+              .getSession()
+              .close();
+    }
+    
+    
+    /**
+     * @since 0.1.0
+     */    
+    @Test
     public void testIsSourceMoreGeneralThanTarget() throws SenseMatcherException, LinguisticOracleException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -333,7 +368,7 @@ public class SmdivOracleTest {
     @Test
     public void testCreateSense() throws LinguisticOracleException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -376,7 +411,7 @@ public class SmdivOracleTest {
     @Test
     public void testGetBaseFormsWordForm() throws LinguisticOracleException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 
@@ -408,7 +443,7 @@ public class SmdivOracleTest {
     @Test
     public void testGetBaseFormsLemmatizer() throws LinguisticOracleException {
 
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 

@@ -50,7 +50,7 @@ public class SmdivUtilsTest {
      * @since 0.1
      */
     public static <T> ArrayList<T> newArrayList(T... objs) {
-        ArrayList<T> ret = new ArrayList();
+        ArrayList<T> ret = new ArrayList<>();
         
         for (T obj : objs){
             ret.add(obj);            
@@ -64,7 +64,7 @@ public class SmdivUtilsTest {
      * @since 0.1
      */
     public static <T> HashSet<T> newHashSet(T... objs) {
-        HashSet<T> ret = new HashSet();
+        HashSet<T> ret = new HashSet<>();
         
         for (T obj : objs){
             ret.add(obj);            

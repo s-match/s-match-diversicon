@@ -15,12 +15,12 @@ import static it.unitn.disi.smatch.oracles.diversicon.test.SmdivUtilsTest.*;
 
 import de.tudarmstadt.ukp.lmf.model.core.LexicalResource;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
-import de.tudarmstadt.ukp.lmf.transform.DBConfig;
 import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.Diversicon;
 import eu.kidf.diversicon.core.Diversicons;
 import eu.kidf.diversicon.core.test.LmfBuilder;
 import eu.kidf.diversicon.core.test.DivTester;
+import static eu.kidf.diversicon.core.test.DivTester.tid;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.diversicon.SmdivOracle;
 import it.unitn.disi.smatch.oracles.diversicon.SmdivSense;
@@ -80,17 +80,17 @@ public class SmdivSenseTest {
                                                .get(0);
 
         assertEquals(
-                newHashSet("synset 2", "synset 3"),
+                newHashSet(tid("synset-2"), tid("synset-3")),
                 new HashSet<>(getIds(sense1.getChildren())));
         assertEquals(
-                newArrayList("synset 2"),
+                newArrayList(tid("synset-2")),
                 SmdivUtils.getIds(sense1.getChildren(1)));
 
         assertEquals(
-                newHashSet("synset 1", "synset 2"),
+                newHashSet(tid("synset-1"), tid("synset-2")),
                 new HashSet<>(getIds(sense3.getParents())));
         assertEquals(
-                newArrayList("synset 2"),
+                newArrayList(tid("synset-2")),
                 getIds(sense3.getParents(1)));
 
         oracle.getDiversicon()
@@ -101,7 +101,7 @@ public class SmdivSenseTest {
 
     @Test
     public void testGetGlossLemmas() throws LinguisticOracleException {
-        Diversicons.dropCreateTables(divConfig);
+        Diversicons.dropCreateTables(divConfig.getDbConfig());
 
         SmdivOracle oracle = new SmdivOracle(divConfig);
 

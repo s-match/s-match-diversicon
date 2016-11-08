@@ -35,7 +35,9 @@ import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.SenseMatcherException;
 
 /**
- * Oracle to access LMF XMLs via <a href="https://github.com/DavidLeoni/diversicon" target="_blank"> Diversicon
+ * Oracle to access LMF XMLs via
+ * <a href="https://github.com/DavidLeoni/diversicon" target="_blank">
+ * Diversicon
  * </a> /
  * <a href="https://dkpro.github.io/dkpro-uby/" target="_blank"> UBY
  * </a> framework. todo talk about db
@@ -51,16 +53,16 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     private static final Logger log = LoggerFactory.getLogger(SmdivOracle.class);
 
-    
     /**
-     * Default path of the file cache of S-Match diversicon. It is relative to the user home.
+     * Default path of the file cache of S-Match diversicon. It is relative to
+     * the user home.
      *
      * @since 0.1.0
      */
     public static final String DEFAULT_CACHE_PATH = ".config/s-match/diversicon/cache/";
-    
+
     private File cacheDir;
-    
+
     private Diversicon diversicon;
 
     /**
@@ -75,9 +77,10 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
                 + DEFAULT_CACHE_PATH);
         try {
             DBConfig defaultDbConfig = Diversicons.fetchH2Db(
-                    this.cacheDir, 
-                    DivWn31.NAME, 
-                    DivWn31.of().getVersion());
+                    this.cacheDir,
+                    DivWn31.NAME,
+                    DivWn31.of()
+                           .getVersion());
             diversicon = Diversicon.connectToDb(DivConfig.of(defaultDbConfig));
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
@@ -85,14 +88,14 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     }
 
     /**
-     * Connects to h2 file database at given path, using 
+     * Connects to h2 file database at given path, using
      * {@link Diversicons#h2MakeDefaultFileDbConfig(String, boolean) default
-     * connection config}  
+     * connection config}
      * 
      * @param filepath
      *            the database path ending only with the name. Must NOT end with
-     *             '{@code .h2.db}'.  
-     *            
+     *            '{@code .h2.db}'.
+     * 
      * @since 0.1.0
      */
     public SmdivOracle(String filepath) {
@@ -113,7 +116,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
         diversicon = Diversicon.connectToDb(divConfig);
     }
-    
+
     /**
      * @since 0.1.0
      */
@@ -205,7 +208,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      *         according to oracle
      * @throws it.unitn.disi.smatch.oracles.SenseMatcherException
      *             SenseMatcherException
-     *             
+     * 
      * @since 0.1.0
      */
     // copied from wordnet oracle and removed caching. todo review to check
@@ -297,7 +300,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * @since 0.1.0
-     */    
+     */
     @Override
     public boolean isSourceLessGeneralThanTarget(ISense source, ISense target) throws SenseMatcherException {
         checkSourceTarget(source, target);
@@ -306,7 +309,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * @since 0.1.0
-     */    
+     */
     @Override
     public boolean isSourceSynonymTarget(ISense source, ISense target) throws SenseMatcherException {
         checkSourceTarget(source, target);
@@ -326,7 +329,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         }
         return false;
     }
-    
+
     /**
      * @since 0.1.0
      */
@@ -356,7 +359,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      * @since 0.1.0
      */
     @Override
-    public boolean isEqual(String str1, String str2) throws LinguisticOracleException {                
+    public boolean isEqual(String str1, String str2) throws LinguisticOracleException {
         return new HashSet<>(getBaseForms(str1)).equals(
                 new HashSet<>(getBaseForms(str2)));
     }
@@ -394,33 +397,40 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      * @since 0.1.0
      */
     @Override
-    public List<String> getBaseForms(String derivation) throws LinguisticOracleException {                       
-               
+    public List<String> getBaseForms(String derivation) throws LinguisticOracleException {
+
         List<String> lemmaStrings = diversicon.getLemmaStringsByWordForm(derivation, null, null);
-                
-        if (!lemmaStrings.isEmpty()){
-            return lemmaStrings;            
-        } else {
-            
-            Set<String> retSet = new HashSet<>();
-            for (String pos : SmdivUtils.SCROLL_POSES){
-                Set<String> candidateLemmas = SmdivUtils.lemmatizeEn(derivation, pos);
-                for (String s : candidateLemmas){
-                    retSet.addAll(diversicon.getLemmaStringsByWrittenForm(
-                            s, 
-                            EPartOfSpeech.valueOf(pos.toLowerCase()), 
-                            null));
-                }    
-            }                       
-            
-            return new ArrayList<>(retSet);
+
+        if (!lemmaStrings.isEmpty()) {
+            return lemmaStrings;
         }
-        
+
+        lemmaStrings = diversicon.getLemmaStringsByWrittenForm(derivation, null, null);
+
+        if (!lemmaStrings.isEmpty()) {
+            return lemmaStrings;
+        }
+
+        // try lemmatization
+        Set<String> retSet = new HashSet<>();
+        for (String pos : SmdivUtils.SCROLL_POSES) {
+            Set<String> candidateLemmas = SmdivUtils.lemmatizeEn(derivation, pos);
+            for (String s : candidateLemmas) {
+                retSet.addAll(diversicon.getLemmaStringsByWrittenForm(
+                        s,
+                        EPartOfSpeech.valueOf(pos.toLowerCase()),
+                        null));
+            }
+        }
+
+        return new ArrayList<>(retSet);
     }
+
+    
 
     /**
      * @since 0.1.0
-     */    
+     */
     // the create is misleading, it's actually retrieving a sense from oracle
     @Override
     public ISense createSense(String id) throws LinguisticOracleException {
@@ -442,43 +452,45 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * @since 0.1.0
-     */    
+     */
     @Override
     public List<List<String>> getMultiwords(String beginning) throws LinguisticOracleException {
-        
-        List<List<String>> ret = new ArrayList<>(); 
-        
-        List<LexicalEntry> lexEntries = diversicon.getLexicalEntriesByLemmaPrefix(beginning, null, null);        
-        
-        for (LexicalEntry lexEntry : lexEntries){
+
+        List<List<String>> ret = new ArrayList<>();
+
+        List<LexicalEntry> lexEntries = diversicon.getLexicalEntriesByLemmaPrefix(beginning, null, null);
+
+        for (LexicalEntry lexEntry : lexEntries) {
             // note Component is never used in Wordnet transformer!
             ListOfComponents loc = lexEntry.getListOfComponents();
-            if (loc == null){
-                if (lexEntry.getLemmaForm() != null){
-                    String[] arr = lexEntry.getLemmaForm().split(" ");
-                    if (arr.length > 1){
+            if (loc == null) {
+                if (lexEntry.getLemmaForm() != null) {
+                    String[] arr = lexEntry.getLemmaForm()
+                                           .split(" ");
+                    if (arr.length > 1) {
                         ArrayList<String> mw1 = new ArrayList<>();
-                        for (String s : arr){
-                            mw1.add(s);                        
+                        for (String s : arr) {
+                            mw1.add(s);
                         }
                         ret.add(mw1);
                     }
-                }                
+                }
             } else {
                 List<Component> comps = loc.getComponents();
                 ArrayList<String> mw = new ArrayList<>();
-                
-                if (comps.size() > 1){
+
+                if (comps.size() > 1) {
                     ArrayList<String> mw2 = new ArrayList<>();
-                    for (Component comp : comps){
-                        mw.add(comp.getTargetLexicalEntry().getLemmaForm());
+                    for (Component comp : comps) {
+                        mw.add(comp.getTargetLexicalEntry()
+                                   .getLemmaForm());
                     }
                     ret.add(mw2);
                 }
             }
         }
         return ret;
-        
+
     }
 
     /**
@@ -489,8 +501,6 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     public Diversicon getDiversicon() {
         return diversicon;
     }
-
-    
 
     /**
      * EXPERIMENTAL - IMPLEMENTATION MIGHT WILDLY CHANGE
@@ -507,7 +517,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         if (!cacheDir.getAbsolutePath()
                      .endsWith("cache")) {
             throw new IllegalStateException(
-                    "Failed security check prior deleting S-Match Diversicon cache! System says it's located at " + cacheDir);
+                    "Failed security check prior deleting S-Match Diversicon cache! System says it's located at "
+                            + cacheDir);
         }
         try {
             if (cacheDir.exists()) {
@@ -523,9 +534,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     /**
      * @since 0.1.0
      */
-    public File getCacheDir() {        
+    public File getCacheDir() {
         return cacheDir;
     }
-        
-    
+
 }
