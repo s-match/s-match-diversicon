@@ -68,19 +68,22 @@
 			<version>${diversicon.version}</version>			
 		</dependency>		
 
+
+
 		<!-- ************ TESTING ***************** -->
 		
-
-		
+		<!--  NOTE: we don't need this, as Diversicon fetchH2db will take 
+		      care of fetching it from the web 
+		      
 		<dependency>
-			<scope>test</scope>		
+			<scope>test</scope>
 			<groupId>eu.kidf</groupId>
 			<artifactId>div-wn31-h2db</artifactId>
 			<version>${diversicon.version}</version>			
 		</dependency>
+		-->
 		
-		
-	<dependency>
+		<dependency>
 			<scope>test</scope>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

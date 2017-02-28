@@ -61,20 +61,26 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      */
     public static final String DEFAULT_CACHE_PATH = ".config/s-match/diversicon/cache/";
 
-    private File cacheDir;
+    /**
+     * @since 0.1.0
+     */
+    private File cacheDir = new File(System.getProperty("user.home") + File.separator
+            + DEFAULT_CACHE_PATH);
 
     private Diversicon diversicon;
 
     /**
-     * Connects to Wordnet 3.1 file database, extracting it to
-     * {@link eu.kidf.diversicon.core.Diversicons#CACHE_PATH user home}
-     * if not already present.
+     * Connects to Wordnet 3.1 file database in read-only mode 
+     * in user home under {@value #DEFAULT_CACHE_PATH}.
+     * If database is not present, it is first fetched from the classpath. If not found,
+     * it is fetched from the internet.
+     * 
      * 
      * @since 0.1.0
      */
+    // for fetching logic, see also  https://github.com/diversicon-kb/diversicon-core/issues/42
     public SmdivOracle() {
-        this.cacheDir = new File(System.getProperty("user.home") + File.separator
-                + DEFAULT_CACHE_PATH);
+                
         try {
             DBConfig defaultDbConfig = Diversicons.fetchH2Db(
                     this.cacheDir,
@@ -93,8 +99,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      * connection config}
      * 
      * @param filepath
-     *            the database path ending only with the name. Must NOT end with
-     *            '{@code .h2.db}'.
+     *            the database path ending only with the name. <strong> Must NOT end with
+     *            '{@code .h2.db}'</strong>.
      * 
      * @since 0.1.0
      */
@@ -109,14 +115,16 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
     }
 
     /**
+     * Connects to a database pointed by provided config. 
+     * 
      * @since 0.1.0
      */
     public SmdivOracle(DivConfig divConfig) {
         Objects.requireNonNull(divConfig);
-
+        
         diversicon = Diversicon.connectToDb(divConfig);
     }
-
+    
     /**
      * @since 0.1.0
      */
@@ -536,6 +544,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      */
     public File getCacheDir() {
         return cacheDir;
-    }
+    }      
+    
 
 }

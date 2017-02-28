@@ -1,7 +1,12 @@
 package it.unitn.disi.smatch.oracles.diversicon.test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -64,10 +69,11 @@ public class SmdivOracleIT {
     }  
     
     /**
+     * @throws IOException 
      * @since 0.1.0
      */
     @Test
-    public void testSmdiv() throws SMatchException {
+    public void testSmdiv() throws SMatchException, IOException {
         
           log.info("Starting example...");
           log.info("Creating MatchManager...");
@@ -78,6 +84,21 @@ public class SmdivOracleIT {
           
           IMappingFactory mappingFactory = new HashMapping<>();
           
+          File cacheDir = new File(System.getProperty("user.home") + File.separator
+                  + SmdivOracle.DEFAULT_CACHE_PATH);
+          
+          log.info("Cleaning cache ... " + cacheDir);
+          
+          if (cacheDir.exists()){
+              // security check
+              if (cacheDir.getAbsolutePath().endsWith("diversicon/cache")){
+                  FileUtils.deleteDirectory(cacheDir);    
+                  log.info("Done cleaning.");
+              } else{
+                 Assert.fail("Failed security check to clean cache ! Tried to delete wrong cache: " + cacheDir);
+              }                               
+          }              
+                    
           SmdivOracle oracle = new SmdivOracle();
           
           ElementMatcher elementMatcher = new ElementMatcher(
