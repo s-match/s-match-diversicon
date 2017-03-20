@@ -89,7 +89,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     /**
      * Connects to h2 file database at given path, using
-     * {@link Diversicons#h2MakeDefaultFileDbConfig(String, boolean) default
+     * {@link Diversicons#h2FileConfig(String, boolean) default
      * connection config}
      * 
      * @param filepath
@@ -102,7 +102,7 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
         Objects.requireNonNull(filepath);
         try {
             diversicon = Diversicon.connectToDb(
-                    DivConfig.of(Diversicons.h2MakeDefaultFileDbConfig(filepath, true)));
+                    DivConfig.of(Diversicons.h2FileConfig(filepath, true)));
         } catch (Exception ex) {
             throw new SmdivException("Error creating default wordnet db!", ex);
         }
