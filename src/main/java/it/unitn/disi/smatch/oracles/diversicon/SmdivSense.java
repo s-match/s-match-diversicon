@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
+import java.util.Set;
 
 /**
  * 
@@ -150,10 +151,9 @@ public class SmdivSense implements ISense, Serializable {
 
             ArrayList<String> relNames = new ArrayList<String>(Arrays.asList(relNamesArr));
 
-            Iterator<Synset> iter = oracle.getDiversicon()
+            Set<Synset> synsets = oracle.getDiversicon()
                                           .getConnectedSynsets(getId(), depth, relNames);
-            while (iter.hasNext()) {
-                Synset syn = iter.next();
+            for (Synset syn : synsets) {
                 ret.add(new SmdivSense(syn, oracle));
             }
             return Collections.unmodifiableList(ret);
