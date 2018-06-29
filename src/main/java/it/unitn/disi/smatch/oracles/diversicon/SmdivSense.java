@@ -151,9 +151,10 @@ public class SmdivSense implements ISense, Serializable {
 
             ArrayList<String> relNames = new ArrayList<String>(Arrays.asList(relNamesArr));
 
-            Set<Synset> synsets = oracle.getDiversicon()
+            Iterator<Synset> iter = oracle.getDiversicon()
                                           .getConnectedSynsets(getId(), depth, relNames);
-            for (Synset syn : synsets) {
+            while (iter.hasNext()) {
+                Synset syn = iter.next();
                 ret.add(new SmdivSense(syn, oracle));
             }
             return Collections.unmodifiableList(ret);
