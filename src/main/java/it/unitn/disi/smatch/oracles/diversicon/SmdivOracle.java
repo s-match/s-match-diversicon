@@ -477,8 +477,9 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
                                            .split(" ");
                     if (arr.length > 1) {
                         ArrayList<String> mw1 = new ArrayList<>();
-                        for (String s : arr) {
-                            mw1.add(s);
+                        // skip the head word, as per the specification of this method
+                        for (int i = 1; i < arr.length; i++) {
+                            mw1.add(arr[i]);
                         }
                         ret.add(mw1);
                     }
