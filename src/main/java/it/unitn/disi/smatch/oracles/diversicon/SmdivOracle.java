@@ -33,6 +33,8 @@ import it.unitn.disi.smatch.oracles.ILinguisticOracle;
 import it.unitn.disi.smatch.oracles.ISenseMatcher;
 import it.unitn.disi.smatch.oracles.LinguisticOracleException;
 import it.unitn.disi.smatch.oracles.SenseMatcherException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Oracle to access LMF XMLs via
@@ -69,6 +71,8 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     private Diversicon diversicon;
 
+    private final Map<String, Character> sensesCache = new ConcurrentHashMap<>();
+    
     /**
      * Connects to Wordnet 3.1 file database in read-only mode 
      * in user home under {@value #DEFAULT_CACHE_PATH}.
@@ -136,68 +140,35 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
 
     @Override
     public char getRelation(List<ISense> sourceSenses, List<ISense> targetSenses) throws SenseMatcherException {
+        boolean foundLessGeneral = false;
+        boolean foundMoreGeneral = false;
+        boolean foundOpposite = false;
         for (ISense sourceSense : sourceSenses) {
             for (ISense targetSense : targetSenses) {
-                if (getRelationFromOracle(sourceSense, targetSense, IMappingElement.EQUIVALENCE)) {
+                char relation = getRelationFromOracle(sourceSense, targetSense);
+                if (relation == IMappingElement.EQUIVALENCE) {
                     if (log.isTraceEnabled()) {
-                        log.trace("Found = using & (SIMILAR_TO) between " +
-                                sourceSense.getId() + Arrays.toString(sourceSense.getLemmas()
-                                                                                 .toArray())
-                                + " and " +
-                                targetSense.getId() + Arrays.toString(targetSense.getLemmas()
-                                                                                 .toArray()));
+                        log.trace("Found " + relation + " between " +
+                                        sourceSense.getId() + Arrays.toString(sourceSense.getLemmas().toArray()) + " and " +
+                                        targetSense.getId() + Arrays.toString(targetSense.getLemmas().toArray())
+                        );
                     }
                     return IMappingElement.EQUIVALENCE;
+                } else if (relation == IMappingElement.LESS_GENERAL) {
+                    foundLessGeneral = true;
+                } else if (relation == IMappingElement.MORE_GENERAL) {
+                    foundMoreGeneral = true;
+                } else if (relation == IMappingElement.DISJOINT) {
+                    foundOpposite = true;
                 }
             }
         }
-        // Check for less general than
-        for (ISense sourceSense : sourceSenses) {
-            for (ISense targetSense : targetSenses) {
-                if (getRelationFromOracle(sourceSense, targetSense, IMappingElement.LESS_GENERAL)) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Found < using @,#m,#s,#p (HYPERNYM, MEMBER_, SUBSTANCE_, PART_HOLONYM) between " +
-                                sourceSense.getId() + Arrays.toString(sourceSense.getLemmas()
-                                                                                 .toArray())
-                                + " and " +
-                                targetSense.getId() + Arrays.toString(targetSense.getLemmas()
-                                                                                 .toArray()));
-                    }
-                    return IMappingElement.LESS_GENERAL;
-                }
-            }
-        }
-        // Check for more general than
-        for (ISense sourceSense : sourceSenses) {
-            for (ISense targetSense : targetSenses) {
-                if (getRelationFromOracle(sourceSense, targetSense, IMappingElement.MORE_GENERAL)) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Found > using @,#m,#s,#p (HYPERNYM, MEMBER_, SUBSTANCE_, PART_HOLONYM) between " +
-                                sourceSense.getId() + Arrays.toString(sourceSense.getLemmas()
-                                                                                 .toArray())
-                                + " and " +
-                                targetSense.getId() + Arrays.toString(targetSense.getLemmas()
-                                                                                 .toArray()));
-                    }
-                    return IMappingElement.MORE_GENERAL;
-                }
-            }
-        }
-        // Check for opposite meaning
-        for (ISense sourceSense : sourceSenses) {
-            for (ISense targetSense : targetSenses) {
-                if (getRelationFromOracle(sourceSense, targetSense, IMappingElement.DISJOINT)) {
-                    if (log.isTraceEnabled()) {
-                        log.trace("Found ! using ! (ANTONYM) between " +
-                                sourceSense.getId() + Arrays.toString(sourceSense.getLemmas()
-                                                                                 .toArray())
-                                + " and " +
-                                targetSense.getId() + Arrays.toString(targetSense.getLemmas()
-                                                                                 .toArray()));
-                    }
-                    return IMappingElement.DISJOINT;
-                }
-            }
+        if (foundLessGeneral) {
+            return IMappingElement.LESS_GENERAL;
+        } else if (foundMoreGeneral) {
+            return IMappingElement.MORE_GENERAL;
+        } else if (foundOpposite) {
+            return IMappingElement.DISJOINT;
         }
         return IMappingElement.IDK;
     }
@@ -221,24 +192,70 @@ public class SmdivOracle implements ILinguisticOracle, ISenseMatcher {
      */
     // copied from wordnet oracle and removed caching. todo review to check
     // caching is actually needed
-    private boolean getRelationFromOracle(ISense source, ISense target, char rel) throws SenseMatcherException {
+    private char getRelationFromOracle(ISense source, ISense target) throws SenseMatcherException {
+        if (source.equals(target)) {
+            return IMappingElement.EQUIVALENCE;
+        }
+        final String sensePairKey = source.toString() + "\t" + target.toString();
+        Character cachedRelation = sensesCache.get(sensePairKey);
+        // if we don't have cached relation then retrieve it and cache it
+        if (null != cachedRelation) {
+            return cachedRelation;
+        }
+        if (!(source instanceof SmdivSense) || !(target instanceof SmdivSense)) {
+            return IMappingElement.IDK;
+        }
+        SmdivSense sourceSyn = (SmdivSense) source;
+        SmdivSense targetSyn = (SmdivSense) target;
+        if (sourceSyn.getSynset().getId().equals(targetSyn.getSynset().getId())) {
+            return IMappingElement.EQUIVALENCE;
+        }
+        boolean foundLessGeneral = false;
+        boolean foundMoreGeneral = false;
+        boolean foundOpposite = false;
 
-        if (isSourceSynonymTarget(source, target)) {
-            return rel == IMappingElement.EQUIVALENCE;
+        Set<String> rels;
+        try {
+            
+            rels = diversicon.getRelations(sourceSyn.getSynset().getId(), 
+                                                       targetSyn.getSynset().getId(), -1);
+        } catch (Exception e) {
+            throw new SenseMatcherException(e.getClass().getSimpleName() + ": " + e.getMessage(), e);
+        }
+        
+        if (rels.contains(ERelNameSemantics.SYNONYM) 
+         || rels.contains(ERelNameSemantics.SYNONYMNEAR)) {
+            return IMappingElement.EQUIVALENCE;
+        } else if (rels.contains(ERelNameSemantics.HYPERNYM) 
+                || rels.contains(ERelNameSemantics.HOLONYM)
+                || rels.contains(ERelNameSemantics.HOLONYMPART)
+                || rels.contains(ERelNameSemantics.HOLONYMSUBSTANCE)
+                || rels.contains(ERelNameSemantics.HOLONYMMEMBER)
+                || rels.contains(ERelNameSemantics.HYPERNYMINSTANCE)) {
+            foundLessGeneral = true;
+        } else if (rels.contains(ERelNameSemantics.HYPONYM) 
+                || rels.contains(ERelNameSemantics.MERONYM)
+                || rels.contains(ERelNameSemantics.MERONYMPART)
+                || rels.contains(ERelNameSemantics.MERONYMSUBSTANCE)
+                || rels.contains(ERelNameSemantics.MERONYMMEMBER)
+                || rels.contains(ERelNameSemantics.HYPONYMINSTANCE)) {
+            foundMoreGeneral = true;
+        } else if (rels.contains(ERelNameSemantics.ANTONYM)) {
+            foundOpposite = true;
+        }
+
+        if (foundLessGeneral) {
+            sensesCache.put(sensePairKey, IMappingElement.LESS_GENERAL);
+            return IMappingElement.LESS_GENERAL;
+        } else if (foundMoreGeneral) {
+            sensesCache.put(sensePairKey, IMappingElement.MORE_GENERAL);
+            return IMappingElement.MORE_GENERAL;
+        } else if (foundOpposite) {
+            sensesCache.put(sensePairKey, IMappingElement.DISJOINT);
+            return IMappingElement.DISJOINT;
         } else {
-            if (isSourceOppositeToTarget(source, target)) {
-                return rel == IMappingElement.DISJOINT;
-            } else {
-                if (isSourceLessGeneralThanTarget(source, target)) {
-                    return rel == IMappingElement.LESS_GENERAL;
-                } else {
-                    if (isSourceMoreGeneralThanTarget(source, target)) {
-                        return rel == IMappingElement.MORE_GENERAL;
-                    } else {
-                        return IMappingElement.IDK == rel;
-                    }
-                }
-            }
+            sensesCache.put(sensePairKey, IMappingElement.IDK);
+            return IMappingElement.IDK;
         }
     }
 

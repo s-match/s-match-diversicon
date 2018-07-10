@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.tudarmstadt.ukp.lmf.transform.DBConfig;
 import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.test.DivTester;
 import it.unitn.disi.smatch.IMatchManager;
@@ -42,8 +41,11 @@ import it.unitn.disi.smatch.oracles.diversicon.SmdivOracle;
 import it.unitn.disi.smatch.preprocessors.DefaultContextPreprocessor;
 import it.unitn.disi.smatch.renderers.context.SimpleXMLContextRenderer;
 import it.unitn.disi.smatch.renderers.mapping.PlainMappingRenderer;
+import org.junit.Ignore;
 
 /**
+ * Integration tests for SMATCH-Diversicon.
+ * 
  * @since 0.1.0
  */
 public class SmdivOracleIT {

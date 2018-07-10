@@ -6,10 +6,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import de.tudarmstadt.ukp.lmf.model.core.LexicalResource;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
-import de.tudarmstadt.ukp.lmf.transform.DBConfig;
 import eu.kidf.diversicon.core.DivConfig;
 import eu.kidf.diversicon.core.Diversicon;
 import eu.kidf.diversicon.core.Diversicons;
@@ -232,8 +227,8 @@ public class SmdivOracleTest {
                 DivTester.createLexResPackage(lexRes),
                 true);
 
-        assertEquals(newArrayList(newArrayList("a", "b")), oracle.getMultiwords("a"));
-        assertEquals(newArrayList(newArrayList("a", "b")), oracle.getMultiwords("a b"));
+        assertEquals(newArrayList(newArrayList("b")), oracle.getMultiwords("a"));
+        assertEquals(newArrayList(newArrayList("b")), oracle.getMultiwords("a b"));
         assertEquals(newArrayList(), oracle.getMultiwords("c"));
         assertEquals(new ArrayList<>(), oracle.getMultiwords("666"));
 
