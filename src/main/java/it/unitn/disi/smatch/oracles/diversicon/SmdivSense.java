@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import de.tudarmstadt.ukp.lmf.model.core.LexicalEntry;
 import de.tudarmstadt.ukp.lmf.model.enums.ERelNameSemantics;
 import de.tudarmstadt.ukp.lmf.model.semantics.Synset;
-import java.util.Set;
 
 /**
  * 
@@ -177,6 +176,10 @@ public class SmdivSense implements ISense, Serializable {
      */
     public void setSynset(Synset synset) {
         this.synset = synset;
+    }
+    
+    public String toString() {
+        return this.getId();
     }
 
 }
